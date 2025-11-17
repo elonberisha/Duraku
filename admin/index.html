@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Duraku Gallery</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1><span>DURAKU</span> XHEVDET</h1>
+                <p>Admin Panel</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">
+                        <i class="fas fa-user"></i> Username
+                    </label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <div class="forget-password-link">
+                    <button type="button" id="forgetPasswordBtn" class="btn-link">
+                        <i class="fas fa-key"></i> Forget Password?
+                    </button>
+                </div>
+                <div id="loginError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="admin-dashboard" style="display: none;">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="admin-header-content">
+                <h1><span>DURAKU</span> XHEVDET - Admin Panel</h1>
+                <div class="admin-header-actions">
+                    <span class="admin-user">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="adminUsername">Admin</span>
+                    </span>
+                    <button id="logoutBtn" class="btn btn-secondary">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Sidebar -->
+            <aside class="admin-sidebar">
+                <nav class="admin-nav">
+                    <a href="#hero" class="nav-item" data-section="hero">
+                        <i class="fas fa-home"></i>
+                        <span>Hero Page</span>
+                    </a>
+                    <a href="#gallery" class="nav-item active" data-section="gallery">
+                        <i class="fas fa-images"></i>
+                        <span>Gallery Management</span>
+                    </a>
+                    <a href="#about" class="nav-item" data-section="about">
+                        <i class="fas fa-info-circle"></i>
+                        <span>About Section</span>
+                    </a>
+                    <a href="#categories" class="nav-item" data-section="categories">
+                        <i class="fas fa-tags"></i>
+                        <span>Categories</span>
+                    </a>
+                    <a href="#settings" class="nav-item" data-section="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Content Area -->
+            <div class="admin-content">
+                <!-- Hero Page Section -->
+                <section id="heroSection" class="admin-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-home"></i> Hero Page Management</h2>
+                    </div>
+                    
+                    <div class="settings-container">
+                        <form id="heroForm" class="settings-form">
+                            <!-- Background Image -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-image"></i> Background Image</h3>
+                                <div class="form-group">
+                                    <label for="heroBackgroundImage">Background Image</label>
+                                    <div class="image-upload-container">
+                                        <input type="file" id="heroBackgroundImage" name="background_image" accept="image/*">
+                                        <div class="image-preview" id="heroBackgroundPreview">
+                                            <i class="fas fa-image"></i>
+                                            <span>Click to upload background image</span>
+                                        </div>
+                                    </div>
+                                    <small>Recommended size: 1920x1080px or larger</small>
+                                </div>
+                            </div>
+
+                            <!-- Title -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-heading"></i> Title</h3>
+                                <div class="form-group">
+                                    <label for="heroTitleSq">Title (Albanian) *</label>
+                                    <input type="text" id="heroTitleSq" name="title_sq" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="heroTitleDe">Title (German) *</label>
+                                    <input type="text" id="heroTitleDe" name="title_de" required>
+                                </div>
+                            </div>
+
+                            <!-- Subtitle -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-text-height"></i> Subtitle</h3>
+                                <div class="form-group">
+                                    <label for="heroSubtitleSq">Subtitle (Albanian) *</label>
+                                    <input type="text" id="heroSubtitleSq" name="subtitle_sq" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="heroSubtitleDe">Subtitle (German) *</label>
+                                    <input type="text" id="heroSubtitleDe" name="subtitle_de" required>
+                                </div>
+                            </div>
+
+                            <!-- Tagline -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-quote-left"></i> Tagline</h3>
+                                <div class="form-group">
+                                    <label for="heroTaglineSq">Tagline (Albanian)</label>
+                                    <input type="text" id="heroTaglineSq" name="tagline_sq">
+                                </div>
+                                <div class="form-group">
+                                    <label for="heroTaglineDe">Tagline (German)</label>
+                                    <input type="text" id="heroTaglineDe" name="tagline_de">
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-align-left"></i> Description</h3>
+                                <div class="form-group">
+                                    <label for="heroDescriptionSq">Description (Albanian)</label>
+                                    <textarea id="heroDescriptionSq" name="description_sq" rows="3"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="heroDescriptionDe">Description (German)</label>
+                                    <textarea id="heroDescriptionDe" name="description_de" rows="3"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- CTA Button Text -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-hand-pointer"></i> Call-to-Action Button</h3>
+                                <div class="form-group">
+                                    <label for="heroCtaSq">Button Text (Albanian)</label>
+                                    <input type="text" id="heroCtaSq" name="cta_text_sq">
+                                </div>
+                                <div class="form-group">
+                                    <label for="heroCtaDe">Button Text (German)</label>
+                                    <input type="text" id="heroCtaDe" name="cta_text_de">
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Hero Page
+                                </button>
+                            </div>
+                            <div id="heroMessage" class="form-message"></div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Gallery Management Section -->
+                <section id="gallerySection" class="admin-section active">
+                    <div class="section-header">
+                        <h2><i class="fas fa-images"></i> Gallery Management</h2>
+                        <button id="addGalleryItemBtn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add New Item
+                        </button>
+                    </div>
+
+                    <!-- Filter -->
+                    <div class="filter-bar">
+                        <select id="categoryFilter" class="filter-select">
+                            <option value="all">All Categories</option>
+                        </select>
+                        <input type="text" id="searchInput" class="search-input" placeholder="Search...">
+                    </div>
+
+                    <!-- Gallery Items List -->
+                    <div id="galleryItemsList" class="gallery-items-list">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                </section>
+
+                <!-- About Section -->
+                <section id="aboutSection" class="admin-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-info-circle"></i> About Section Management</h2>
+                    </div>
+                    
+                    <div class="settings-container">
+                        <form id="aboutForm" class="settings-form">
+                            <!-- About Image -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-image"></i> About Image</h3>
+                                <div class="form-group">
+                                    <label for="aboutImage">About Image</label>
+                                    <div class="image-upload-container">
+                                        <input type="file" id="aboutImage" name="about_image" accept="image/*">
+                                        <div class="image-preview" id="aboutImagePreview">
+                                            <i class="fas fa-image"></i>
+                                            <span>Click to upload about image</span>
+                                        </div>
+                                    </div>
+                                    <small>Recommended size: 800x600px or larger</small>
+                                    <div style="margin-top: 1rem;">
+                                        <button type="button" id="removeAboutImageBtn" class="btn btn-danger btn-sm" style="display: none;">
+                                            <i class="fas fa-trash"></i> Remove Image
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-align-left"></i> Description</h3>
+                                <div class="form-group">
+                                    <label for="aboutDescriptionSq">Description (Albanian)</label>
+                                    <textarea id="aboutDescriptionSq" name="description_sq" rows="4"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="aboutDescriptionDe">Description (German)</label>
+                                    <textarea id="aboutDescriptionDe" name="description_de" rows="4"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Statistics -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-chart-bar"></i> Statistics</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="experienceNumber">Experience Number</label>
+                                        <input type="text" id="experienceNumber" name="experience_number" placeholder="15+">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="projectsNumber">Projects Number</label>
+                                        <input type="text" id="projectsNumber" name="projects_number" placeholder="500+">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="clientsNumber">Clients Number</label>
+                                        <input type="text" id="clientsNumber" name="clients_number" placeholder="300+">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="experienceLabelSq">Experience Label (Albanian)</label>
+                                    <input type="text" id="experienceLabelSq" name="experience_sq" placeholder="Vite Përvojë">
+                                </div>
+                                <div class="form-group">
+                                    <label for="experienceLabelDe">Experience Label (German)</label>
+                                    <input type="text" id="experienceLabelDe" name="experience_de" placeholder="Jahre Erfahrung">
+                                </div>
+                                <div class="form-group">
+                                    <label for="projectsLabelSq">Projects Label (Albanian)</label>
+                                    <input type="text" id="projectsLabelSq" name="projects_sq" placeholder="Projekte të Përfunduara">
+                                </div>
+                                <div class="form-group">
+                                    <label for="projectsLabelDe">Projects Label (German)</label>
+                                    <input type="text" id="projectsLabelDe" name="projects_de" placeholder="Abgeschlossene Projekte">
+                                </div>
+                                <div class="form-group">
+                                    <label for="clientsLabelSq">Clients Label (Albanian)</label>
+                                    <input type="text" id="clientsLabelSq" name="clients_sq" placeholder="Klientë të Kënaqur">
+                                </div>
+                                <div class="form-group">
+                                    <label for="clientsLabelDe">Clients Label (German)</label>
+                                    <input type="text" id="clientsLabelDe" name="clients_de" placeholder="Zufriedene Kunden">
+                                </div>
+                            </div>
+
+                            <!-- Team Section -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-users"></i> Team Section</h3>
+                                <div class="form-group">
+                                    <label for="teamImage">Team Photo</label>
+                                    <div class="image-upload-container">
+                                        <input type="file" id="teamImage" name="team_image" accept="image/*">
+                                        <div class="image-preview" id="teamImagePreview">
+                                            <i class="fas fa-image"></i>
+                                            <span>Click to upload team photo</span>
+                                        </div>
+                                    </div>
+                                    <small>Recommended size: 1200x800px or larger</small>
+                                    <div style="margin-top: 1rem;">
+                                        <button type="button" id="removeTeamImageBtn" class="btn btn-danger btn-sm" style="display: none;">
+                                            <i class="fas fa-trash"></i> Remove Team Photo
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="teamTitleSq">Team Title (Albanian)</label>
+                                    <input type="text" id="teamTitleSq" name="team_title_sq" placeholder="Ekipi Ynë">
+                                </div>
+                                <div class="form-group">
+                                    <label for="teamTitleDe">Team Title (German)</label>
+                                    <input type="text" id="teamTitleDe" name="team_title_de" placeholder="Unser Team">
+                                </div>
+                                <div class="form-group">
+                                    <label for="teamDescriptionSq">Team Description (Albanian)</label>
+                                    <textarea id="teamDescriptionSq" name="team_description_sq" rows="3"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="teamDescriptionDe">Team Description (German)</label>
+                                    <textarea id="teamDescriptionDe" name="team_description_de" rows="3"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save About Section
+                                </button>
+                            </div>
+                            <div id="aboutMessage" class="form-message"></div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Categories Section -->
+                <section id="categoriesSection" class="admin-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-tags"></i> Categories</h2>
+                        <button id="addCategoryBtn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add New Category
+                        </button>
+                    </div>
+                    <div id="categoriesList" class="categories-list">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settingsSection" class="admin-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-cog"></i> Settings</h2>
+                    </div>
+                    
+                    <div class="settings-container">
+                        <!-- Change Password -->
+                        <div class="settings-card">
+                            <h3><i class="fas fa-key"></i> Change Password</h3>
+                            <form id="changePasswordForm" class="settings-form">
+                                <div class="form-group">
+                                    <label for="currentPassword">Current Password *</label>
+                                    <input type="password" id="currentPassword" name="current_password" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword">New Password *</label>
+                                    <input type="password" id="newPassword" name="new_password" required minlength="6">
+                                    <small>Minimum 6 characters</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirm New Password *</label>
+                                    <input type="password" id="confirmPassword" name="confirm_password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Change Password
+                                </button>
+                                <div id="passwordChangeMessage" class="form-message"></div>
+                            </form>
+                        </div>
+
+                        <!-- 2FA Settings -->
+                        <div class="settings-card">
+                            <h3><i class="fas fa-shield-alt"></i> Two-Factor Authentication (2FA)</h3>
+                            <div class="settings-info">
+                                <p>Add an extra layer of security to your account. When enabled, you'll receive a verification code via email each time you log in.</p>
+                            </div>
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="enable2FA" name="enable_2fa">
+                                    <span>Enable 2FA for this account</span>
+                                </label>
+                            </div>
+                            <div id="twoFactorEmail" class="form-group" style="display: none;">
+                                <label for="twoFactorEmailInput">Email for 2FA *</label>
+                                <input type="email" id="twoFactorEmailInput" name="two_factor_email" placeholder="your-email@gmail.com">
+                                <small>This email will receive verification codes</small>
+                            </div>
+                            <button type="button" id="save2FASettings" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save 2FA Settings
+                            </button>
+                            <div id="twoFAMessage" class="form-message"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Gallery Item Modal -->
+    <div id="galleryItemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Gallery Item</h3>
+                <button class="modal-close" id="closeModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="galleryItemForm" class="modal-form">
+                <input type="hidden" id="itemId" name="id">
+                
+                <div class="form-group">
+                    <label for="itemName">Name *</label>
+                    <input type="text" id="itemName" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="itemCategory">Category *</label>
+                    <select id="itemCategory" name="category_id" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="itemDescription">Description</label>
+                    <textarea id="itemDescription" name="description" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="itemComment">Comment</label>
+                    <textarea id="itemComment" name="comment" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="beforeImage">Before Image *</label>
+                        <div class="image-upload-container">
+                            <input type="file" id="beforeImage" name="before_image" accept="image/*" required>
+                            <div class="image-preview" id="beforeImagePreview">
+                                <i class="fas fa-image"></i>
+                                <span>Click to upload</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="afterImage">After Image *</label>
+                        <div class="image-upload-container">
+                            <input type="file" id="afterImage" name="after_image" accept="image/*" required>
+                            <div class="image-preview" id="afterImagePreview">
+                                <i class="fas fa-image"></i>
+                                <span>Click to upload</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2FA Verification Modal -->
+    <div id="twoFactorModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3><i class="fas fa-shield-alt"></i> Two-Factor Authentication</h3>
+            </div>
+            <div class="modal-form">
+                <p class="twofa-info">A verification code has been sent to your email. Please enter it below:</p>
+                <div class="form-group">
+                    <label for="verificationCode">Verification Code *</label>
+                    <input type="text" id="verificationCode" name="verification_code" 
+                           maxlength="6" pattern="[0-9]{6}" placeholder="000000" required autocomplete="off">
+                    <small>Enter the 6-digit code from your email</small>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="resendCodeBtn" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> Resend Code
+                    </button>
+                    <button type="button" id="verifyCodeBtn" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Verify
+                    </button>
+                </div>
+                <div id="twoFactorError" class="error-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forget Password Modal -->
+    <div id="forgetPasswordModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3><i class="fas fa-key"></i> Reset Password</h3>
+                <button class="modal-close" id="closeForgetPasswordModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-form">
+                <!-- Step 1: Enter Username -->
+                <div id="forgetPasswordStep1">
+                    <p class="twofa-info">Enter your username to receive a password reset code via email.</p>
+                    <div class="form-group">
+                        <label for="resetUsername">Username *</label>
+                        <input type="text" id="resetUsername" name="reset_username" required autocomplete="username">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="cancelForgetPasswordBtn" class="btn btn-secondary">Cancel</button>
+                        <button type="button" id="sendResetCodeBtn" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Send Reset Code
+                        </button>
+                    </div>
+                    <div id="forgetPasswordError" class="error-message"></div>
+                    <div id="forgetPasswordSuccess" class="success-message"></div>
+                </div>
+
+                <!-- Step 2: Enter Code and New Password -->
+                <div id="forgetPasswordStep2" style="display: none;">
+                    <p class="twofa-info">A reset code has been sent to your email. Enter the code and your new password below.</p>
+                    <div class="form-group">
+                        <label for="resetCode">Reset Code *</label>
+                        <input type="text" id="resetCode" name="reset_code" 
+                               maxlength="6" pattern="[0-9]{6}" placeholder="000000" required autocomplete="off">
+                        <small>Enter the 6-digit code from your email</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPasswordReset">New Password *</label>
+                        <input type="password" id="newPasswordReset" name="new_password_reset" required minlength="6">
+                        <small>Minimum 6 characters</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPasswordReset">Confirm New Password *</label>
+                        <input type="password" id="confirmPasswordReset" name="confirm_password_reset" required minlength="6">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="backToStep1Btn" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button type="button" id="resendResetCodeBtn" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i> Resend Code
+                        </button>
+                        <button type="button" id="resetPasswordBtn" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Reset Password
+                        </button>
+                    </div>
+                    <div id="resetPasswordError" class="error-message"></div>
+                    <div id="resetPasswordSuccess" class="success-message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Category Modal -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3 id="categoryModalTitle">Add Category</h3>
+                <button class="modal-close" id="closeCategoryModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="categoryForm" class="modal-form">
+                <input type="hidden" id="categoryId" name="id">
+                
+                <div class="form-group">
+                    <label for="categoryNameSq">Name (Albanian) *</label>
+                    <input type="text" id="categoryNameSq" name="name_sq" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoryNameDe">Name (German) *</label>
+                    <input type="text" id="categoryNameDe" name="name_de" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoryDescriptionSq">Description (Albanian)</label>
+                    <textarea id="categoryDescriptionSq" name="description_sq" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoryDescriptionDe">Description (German)</label>
+                    <textarea id="categoryDescriptionDe" name="description_de" rows="3"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelCategoryBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                </div>
+                <div id="categoryMessage" class="form-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Galerie - DURAKU XHEVDET Vorher und Nachher">
+    <title data-page-title="gallery.title">Galerie - DURAKU XHEVDET</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html">
+                    <h1>DURAKU <span>XHEVDET</span></h1>
+                </a>
+            </div>
+            <div class="nav-right">
+                <div class="language-selector">
+                    <button class="lang-btn active" data-lang="sq">SQ</button>
+                    <button class="lang-btn" data-lang="de">DE</button>
+                </div>
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" data-i18n="nav.home">Startseite</a></li>
+                <li><a href="about.html" data-i18n="nav.about">Über Uns</a></li>
+                <li><a href="services.html" data-i18n="nav.services">Unsere Leistungen</a></li>
+                <li><a href="gallery.html" data-i18n="nav.gallery">Galerie</a></li>
+                <li><a href="contact.html" data-i18n="nav.contact">Kontakt</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title" data-i18n="gallery.title">Galerie</h1>
+            <p class="page-subtitle" data-i18n="gallery.subtitle">Vorher und Nachher</p>
+        </div>
+    </section>
+
+    <!-- Gallery Content -->
+    <section class="gallery-content">
+        <div class="container">
+            <!-- Category Filters -->
+            <div class="gallery-filters" id="galleryFilters">
+                <button class="filter-btn active" data-filter="all" data-i18n="gallery.all">Alle</button>
+                <!-- Category filter buttons will be loaded dynamically from API -->
+            </div>
+
+            <!-- Gallery Grid -->
+            <div class="gallery-grid" id="galleryGrid">
+                <!-- Gallery items will be loaded dynamically from API -->
+                <div class="loading-spinner" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #d32f2f;"></i>
+                    <p style="margin-top: 1rem; color: #a0a0a0;" data-i18n="gallery.loading">Duke ngarkuar galerinë...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 DURAKU XHEVDET. <span data-i18n="footer.rights">Alle Rechte vorbehalten.</span></p>
+        </div>
+    </footer>
+
+    <!-- Fullscreen Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <span class="modal-close">&times;</span>
+        <button class="modal-prev" aria-label="Previous Image">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="modal-next" aria-label="Next Image">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        <img class="modal-image" id="modalImage" src="" alt="Fullscreen Image">
+        <div class="modal-caption">
+            <span id="modalLabel"></span>
+        </div>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="script.js"></script>
+    <script src="gallery.js"></script>
+    <script src="gallery-api.js"></script>
+</body>
+</html>
+

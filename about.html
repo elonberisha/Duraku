@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Über DURAKU XHEVDET - Experten für Bautenschutz & Industrieböden">
+    <title data-page-title="about.title">Über Uns - DURAKU XHEVDET</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html">
+                    <h1>DURAKU <span>XHEVDET</span></h1>
+                </a>
+            </div>
+            <div class="nav-right">
+                <div class="language-selector">
+                    <button class="lang-btn active" data-lang="sq">SQ</button>
+                    <button class="lang-btn" data-lang="de">DE</button>
+                </div>
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" data-i18n="nav.home">Startseite</a></li>
+                <li><a href="about.html" data-i18n="nav.about">Über Uns</a></li>
+                <li><a href="services.html" data-i18n="nav.services">Unsere Leistungen</a></li>
+                <li><a href="gallery.html" data-i18n="nav.gallery">Galerie</a></li>
+                <li><a href="contact.html" data-i18n="nav.contact">Kontakt</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title" data-i18n="about.title">Über Uns</h1>
+            <p class="page-subtitle" data-i18n="about.subtitle">Experten für professionelle Beschichtungen und Sanierungen</p>
+        </div>
+    </section>
+
+    <!-- About Content -->
+    <section class="about-content">
+        <div class="container">
+            <div class="about-text">
+                <p class="about-description" data-i18n="about.description">
+                    DURAKU XHEVDET ist ein spezialisiertes Unternehmen für Bautenschutz und Industrieböden. Mit jahrelanger Branchenerfahrung bieten wir professionelle Lösungen für alle Ihre Beschichtungsbedürfnisse.
+                </p>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card-sharp">
+                    <div class="stat-number">15+</div>
+                    <div class="stat-label" data-i18n="about.experience">Jahre Erfahrung</div>
+                </div>
+                <div class="stat-card-sharp">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label" data-i18n="about.projects">Abgeschlossene Projekte</div>
+                </div>
+                <div class="stat-card-sharp">
+                    <div class="stat-number">300+</div>
+                    <div class="stat-label" data-i18n="about.clients">Zufriedene Kunden</div>
+                </div>
+            </div>
+
+            <!-- Team Section -->
+            <div class="team-section">
+                <h2 class="section-title" data-i18n="about.team">Unser Team</h2>
+                <p class="team-description" data-i18n="about.teamDesc">
+                    Unser Expertenteam ist bestrebt, hohe Qualität und hervorragende Ergebnisse bei jedem Projekt zu liefern.
+                </p>
+                <div class="team-image-container" id="teamImageContainer" style="display: none;">
+                    <img id="teamImage" src="" alt="Team Photo" style="width: 100%; max-width: 1200px; height: auto; border-radius: 8px; margin-top: 2rem;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 DURAKU XHEVDET. <span data-i18n="footer.rights">Alle Rechte vorbehalten.</span></p>
+        </div>
+    </footer>
+
+    <script src="i18n.js"></script>
+    <script src="script.js"></script>
+    <script src="about-api.js"></script>
+</body>
+</html>
+
