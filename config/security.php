@@ -100,7 +100,9 @@ function setSecureSession() {
         
         // Set cookie domain for cross-subdomain sharing (only in production)
         $host = $_SERVER['HTTP_HOST'] ?? '';
-        if ($isSecure && !in_array($host, ['localhost', '127.0.0.1']) && strpos($host, '.') !== false) {
+        $isLocalhost = in_array($host, ['localhost', '127.0.0.1']) || strpos($host, 'localhost') !== false;
+        
+        if ($isSecure && !$isLocalhost && strpos($host, '.') !== false) {
             // Extract root domain (e.g., durakubeschichtung.de from admin.durakubeschichtung.de)
             $parts = explode('.', $host);
             if (count($parts) >= 2) {
@@ -111,7 +113,7 @@ function setSecureSession() {
         }
         
         // For cross-subdomain, use None with Secure, otherwise use Lax
-        if ($isSecure && !in_array($host, ['localhost', '127.0.0.1']) && strpos($host, '.') !== false) {
+        if ($isSecure && !$isLocalhost && strpos($host, '.') !== false) {
             // Check if we're on a subdomain
             $parts = explode('.', $host);
             if (count($parts) > 2) {

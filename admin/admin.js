@@ -9,6 +9,14 @@ const API_BASE = (window.location.hostname.startsWith('admin.') || window.locati
     ? 'https://durakubeschichtung.de/api' 
     : '../api';
 
+// Helper function to get correct credentials mode
+// Use 'include' for cross-origin (admin subdomain to main domain), 'same-origin' for same-origin
+function getCredentials() {
+    return (window.location.hostname.startsWith('admin.') || window.location.hostname === 'admin')
+        ? 'include'
+        : 'same-origin';
+}
+
 // State management
 let currentUser = null;
 let galleryItems = [];
@@ -50,7 +58,7 @@ async function checkAuth() {
     try {
         const response = await fetch(`${API_BASE}/auth.php?action=check`, {
             method: 'GET',
-            credentials: 'same-origin',
+            credentials: getCredentials(),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -384,7 +392,7 @@ async function handleLogin(e) {
     try {
         const response = await fetch(`${API_BASE}/auth.php?action=login`, {
             method: 'POST',
-            credentials: 'same-origin',
+            credentials: getCredentials(),
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -764,7 +772,7 @@ async function uploadImage(file) {
     try {
         const response = await fetch(`${API_BASE}/upload.php`, {
             method: 'POST',
-            credentials: 'same-origin',
+            credentials: getCredentials(),
             body: formData
         });
         
@@ -969,7 +977,7 @@ async function handleHeroSubmit(e) {
     try {
         const response = await fetch(`${API_BASE}/hero.php?action=update`, {
             method: 'POST',
-            credentials: 'same-origin',
+            credentials: getCredentials(),
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -1257,7 +1265,7 @@ async function loadCategoriesForDisplay() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: 'same-origin'
+            credentials: getCredentials()
         });
         
         if (!response.ok) {
@@ -1753,7 +1761,7 @@ async function handleSendResetCode() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: 'same-origin', // Include cookies for session
+            credentials: getCredentials(), // Include cookies for session
             body: JSON.stringify({ username })
         });
         
@@ -1827,7 +1835,7 @@ async function handleResetPassword() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: 'same-origin', // Include cookies for session
+            credentials: getCredentials(), // Include cookies for session
             body: JSON.stringify({
                 code: code,
                 new_password: newPassword
@@ -1975,7 +1983,7 @@ if (contactForm) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                credentials: 'same-origin',
+                credentials: getCredentials(),
                 body: JSON.stringify(formData)
             });
             
