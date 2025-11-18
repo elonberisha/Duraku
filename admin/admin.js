@@ -764,20 +764,33 @@ async function uploadImage(file) {
     try {
         const response = await fetch(`${API_BASE}/upload.php`, {
             method: 'POST',
+            credentials: 'same-origin',
             body: formData
         });
         
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Upload failed with status:', response.status, errorText);
+            let errorData;
+            try {
+                errorData = JSON.parse(errorText);
+            } catch (e) {
+                errorData = { error: errorText || 'Upload failed' };
+            }
+            throw new Error(errorData.error || 'Upload failed');
+        }
+        
         const data = await response.json();
         
-        if (response.ok && data.success) {
+        if (data.success) {
             return data.url;
         } else {
             console.error('Upload error:', data.error);
-            return null;
+            throw new Error(data.error || 'Upload failed');
         }
     } catch (error) {
         console.error('Upload failed:', error);
-        return null;
+        throw error;
     }
 }
 
@@ -937,10 +950,15 @@ async function handleHeroSubmit(e) {
             const imageUrl = await uploadImage(backgroundImageFile);
             if (imageUrl) {
                 formData.background_image = imageUrl;
+            } else {
+                messageDiv.className = 'form-message error';
+                messageDiv.textContent = 'Failed to upload background image. Please try again.';
+                return;
             }
         } catch (error) {
             messageDiv.className = 'form-message error';
-            messageDiv.textContent = 'Failed to upload background image';
+            messageDiv.textContent = error.message || 'Failed to upload background image. Please check your connection and try again.';
+            console.error('Upload error:', error);
             return;
         }
     } else if (existingHeroData && existingHeroData.background_image) {
@@ -951,6 +969,7 @@ async function handleHeroSubmit(e) {
     try {
         const response = await fetch(`${API_BASE}/hero.php?action=update`, {
             method: 'POST',
+            credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/json'
             },
