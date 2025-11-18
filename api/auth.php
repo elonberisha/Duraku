@@ -121,6 +121,8 @@ if ($method === 'POST' && $action === 'login') {
             error_log('Login successful - Cookie secure: ' . ini_get('session.cookie_secure'));
             error_log('Login successful - HTTP_HOST: ' . ($_SERVER['HTTP_HOST'] ?? 'not set'));
             error_log('Login successful - HTTP_ORIGIN: ' . ($_SERVER['HTTP_ORIGIN'] ?? 'not set'));
+            error_log('Login successful - Session keys after write: ' . (isset($_SESSION) ? implode(', ', array_keys($_SESSION)) : 'no session'));
+            error_log('Login successful - admin_logged_in value: ' . (isset($_SESSION['admin_logged_in']) ? ($_SESSION['admin_logged_in'] ? 'true' : 'false') : 'not set'));
             
             echo json_encode([
                 'success' => true,

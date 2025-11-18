@@ -125,7 +125,19 @@ function setSecureSession() {
     
     // Only start session if not already started
     if (session_status() === PHP_SESSION_NONE) {
+        // Debug: Log session configuration before starting
+        error_log('Session config - Cookie domain: ' . ini_get('session.cookie_domain'));
+        error_log('Session config - Cookie samesite: ' . ini_get('session.cookie_samesite'));
+        error_log('Session config - Cookie secure: ' . ini_get('session.cookie_secure'));
+        error_log('Session config - Save path: ' . ini_get('session.save_path'));
+        error_log('Session config - HTTP_HOST: ' . ($_SERVER['HTTP_HOST'] ?? 'not set'));
+        error_log('Session config - Cookies received: ' . print_r($_COOKIE, true));
+        
         session_start();
+        
+        // Debug: Log session info after starting
+        error_log('Session started - Session ID: ' . session_id());
+        error_log('Session started - Session keys: ' . (isset($_SESSION) ? implode(', ', array_keys($_SESSION)) : 'no session'));
         
         // Regenerate session ID periodically
         if (!isset($_SESSION['created'])) {
@@ -135,6 +147,10 @@ function setSecureSession() {
             session_regenerate_id(true);
             $_SESSION['created'] = time();
         }
+    } else {
+        // Session already started - log current state
+        error_log('Session already started - Session ID: ' . session_id());
+        error_log('Session already started - Session keys: ' . (isset($_SESSION) ? implode(', ', array_keys($_SESSION)) : 'no session'));
     }
 }
 
