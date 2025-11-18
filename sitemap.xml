@@ -44,7 +44,7 @@
         <!-- Gallery Images -->
         <image:image>
             <image:loc>https://www.durakubeschichtung.de/uploads/gallery/hero-page.jpg</image:loc>
-            <image:title>DURAKU XHEVDET Bautenschutz & Industrieböden</image:title>
+            <image:title>DURAKU XHEVDET Bautenschutz &amp; Industrieböden</image:title>
             <image:caption>Professionelle Beschichtungen für Industrieböden</image:caption>
         </image:image>
     </url>
