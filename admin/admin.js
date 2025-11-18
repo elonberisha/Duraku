@@ -447,7 +447,8 @@ async function handleLogin(e) {
 async function handleLogout() {
     try {
         await fetch(`${API_BASE}/auth.php?action=logout`, {
-            method: 'POST'
+            method: 'POST',
+            credentials: getCredentials()
         });
     } catch (error) {
         console.error('Logout error:', error);
@@ -496,7 +497,9 @@ function switchSection(section) {
 // Load categories
 async function loadCategories() {
     try {
-        const response = await fetch(`${API_BASE}/gallery.php?action=categories`);
+        const response = await fetch(`${API_BASE}/gallery.php?action=categories`, {
+            credentials: getCredentials()
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -538,7 +541,9 @@ async function loadGalleryItems() {
     galleryItemsList.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
     
     try {
-        const response = await fetch(`${API_BASE}/gallery.php?action=list`);
+        const response = await fetch(`${API_BASE}/gallery.php?action=list`, {
+            credentials: getCredentials()
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -640,7 +645,9 @@ function openGalleryItemModal(itemId = null) {
 // Load gallery item for editing
 async function loadGalleryItemForEdit(itemId) {
     try {
-        const response = await fetch(`${API_BASE}/gallery.php?action=get&id=${itemId}`);
+        const response = await fetch(`${API_BASE}/gallery.php?action=get&id=${itemId}`, {
+            credentials: getCredentials()
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -743,6 +750,7 @@ async function handleGalleryItemSubmit(e) {
         
         const response = await fetch(url, {
             method: method,
+            credentials: getCredentials(),
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -815,7 +823,8 @@ async function deleteGalleryItem(itemId) {
     
     try {
         const response = await fetch(`${API_BASE}/gallery.php?action=delete&id=${itemId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            credentials: getCredentials()
         });
         
         const data = await response.json();
@@ -865,6 +874,7 @@ async function handlePasswordChange(e) {
     try {
         const response = await fetch(`${API_BASE}/password.php?action=change`, {
             method: 'POST',
+            credentials: getCredentials(),
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -893,7 +903,9 @@ async function handlePasswordChange(e) {
 // Hero Page Functions
 async function loadHeroData() {
     try {
-        const response = await fetch(`${API_BASE}/hero.php?action=get`);
+        const response = await fetch(`${API_BASE}/hero.php?action=get`, {
+            credentials: getCredentials()
+        });
         const data = await response.json();
         
         if (data.success && data.data) {
@@ -929,7 +941,9 @@ async function handleHeroSubmit(e) {
     // Get existing hero data to preserve background_image if not changed
     let existingHeroData = null;
     try {
-        const response = await fetch(`${API_BASE}/hero.php?action=get`);
+        const response = await fetch(`${API_BASE}/hero.php?action=get`, {
+            credentials: getCredentials()
+        });
         const data = await response.json();
         if (data.success && data.data) {
             existingHeroData = data.data;
@@ -1010,7 +1024,9 @@ async function handleHeroSubmit(e) {
 // About Section Functions
 async function loadAboutData() {
     try {
-        const response = await fetch(`${API_BASE}/about.php?action=get`);
+        const response = await fetch(`${API_BASE}/about.php?action=get`, {
+            credentials: getCredentials()
+        });
         const data = await response.json();
         
         if (data.success && data.data) {
@@ -1062,7 +1078,9 @@ async function handleAboutSubmit(e) {
     // Get existing about data to preserve image if not changed
     let existingAboutData = null;
     try {
-        const response = await fetch(`${API_BASE}/about.php?action=get`);
+        const response = await fetch(`${API_BASE}/about.php?action=get`, {
+            credentials: getCredentials()
+        });
         const data = await response.json();
         if (data.success && data.data) {
             existingAboutData = data.data;
@@ -1128,6 +1146,7 @@ async function handleAboutSubmit(e) {
     try {
         const response = await fetch(`${API_BASE}/about.php?action=update`, {
             method: 'POST',
+            credentials: getCredentials(),
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -1178,7 +1197,8 @@ async function handleRemoveAboutImage() {
     
     try {
         const response = await fetch(`${API_BASE}/about.php?action=delete_image&type=about`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            credentials: getCredentials()
         });
         
         const data = await response.json();
@@ -1216,7 +1236,8 @@ async function handleRemoveTeamImage() {
     
     try {
         const response = await fetch(`${API_BASE}/about.php?action=delete_image&type=team`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            credentials: getCredentials()
         });
         
         const data = await response.json();
@@ -1262,10 +1283,10 @@ async function loadCategoriesForDisplay() {
     try {
         const response = await fetch(`${API_BASE}/categories.php?action=list`, {
             method: 'GET',
+            credentials: getCredentials(),
             headers: {
                 'Content-Type': 'application/json'
-            },
-            credentials: getCredentials()
+            }
         });
         
         if (!response.ok) {
@@ -1387,7 +1408,9 @@ function closeCategoryModal() {
 
 async function loadCategoryForEdit(categoryId) {
     try {
-        const response = await fetch(`${API_BASE}/categories.php?action=get&id=${categoryId}`);
+        const response = await fetch(`${API_BASE}/categories.php?action=get&id=${categoryId}`, {
+            credentials: getCredentials()
+        });
         const data = await response.json();
         
         if (data.success && data.data) {
@@ -1430,6 +1453,7 @@ async function handleCategorySubmit(e) {
     try {
         const response = await fetch(url, {
             method: method,
+            credentials: getCredentials(),
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -1467,7 +1491,8 @@ async function deleteCategory(categoryId) {
     
     try {
         const response = await fetch(`${API_BASE}/categories.php?action=delete&id=${categoryId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            credentials: getCredentials()
         });
         
         const data = await response.json();
@@ -1498,7 +1523,9 @@ let currentLoginUsername = '';
 
 async function load2FASettings() {
     try {
-        const response = await fetch(`${API_BASE}/twofactor.php?action=settings`);
+        const response = await fetch(`${API_BASE}/twofactor.php?action=settings`, {
+            credentials: getCredentials()
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -1537,6 +1564,7 @@ async function handleSave2FASettings() {
     try {
         const response = await fetch(`${API_BASE}/twofactor.php?action=update`, {
             method: 'POST',
+            credentials: getCredentials(),
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -1579,6 +1607,7 @@ async function send2FACode(username) {
     try {
         const response = await fetch(`${API_BASE}/twofactor.php?action=send-code`, {
             method: 'POST',
+            credentials: getCredentials(),
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -1614,6 +1643,7 @@ async function handleVerify2FACode() {
     try {
         const response = await fetch(`${API_BASE}/twofactor.php?action=verify`, {
             method: 'POST',
+            credentials: getCredentials(),
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -1931,7 +1961,9 @@ async function handleResendResetCode() {
 // Load contact information
 async function loadContactInfo() {
     try {
-        const response = await fetch(`${API_BASE}/contact_info.php?action=get`);
+        const response = await fetch(`${API_BASE}/contact_info.php?action=get`, {
+            credentials: getCredentials()
+        });
         const data = await response.json();
         
         if (data.success) {

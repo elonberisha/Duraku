@@ -83,3 +83,14 @@ Options -Indexes
 <IfModule mod_deflate.c>
     AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
 </IfModule>
+
+# CORS headers for webmanifest and other static files from admin subdomain
+<IfModule mod_headers.c>
+    # Allow webmanifest from admin subdomain
+    <FilesMatch "\.(webmanifest|json)$">
+        Header set Access-Control-Allow-Origin "https://admin.durakubeschichtung.de"
+        Header set Access-Control-Allow-Methods "GET, OPTIONS"
+        Header set Access-Control-Allow-Headers "Content-Type"
+        Header set Access-Control-Allow-Credentials "true"
+    </FilesMatch>
+</IfModule>
