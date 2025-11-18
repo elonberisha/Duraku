@@ -97,8 +97,34 @@ function setSecureSession() {
                     !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1']);
         ini_set('session.cookie_secure', $isSecure ? 1 : 0);
         ini_set('session.use_strict_mode', 1);
-        // Use Lax instead of Strict for better compatibility
-        ini_set('session.cookie_samesite', 'Lax');
+        
+        // Set cookie domain for cross-subdomain sharing (only in production)
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        if ($isSecure && !in_array($host, ['localhost', '127.0.0.1']) && strpos($host, '.') !== false) {
+            // Extract root domain (e.g., durakubeschichtung.de from admin.durakubeschichtung.de)
+            $parts = explode('.', $host);
+            if (count($parts) >= 2) {
+                // Get last two parts (domain.tld)
+                $rootDomain = '.' . implode('.', array_slice($parts, -2));
+                ini_set('session.cookie_domain', $rootDomain);
+            }
+        }
+        
+        // For cross-subdomain, use None with Secure, otherwise use Lax
+        if ($isSecure && !in_array($host, ['localhost', '127.0.0.1']) && strpos($host, '.') !== false) {
+            // Check if we're on a subdomain
+            $parts = explode('.', $host);
+            if (count($parts) > 2) {
+                // We're on a subdomain, use None for cross-subdomain cookie sharing
+                ini_set('session.cookie_samesite', 'None');
+            } else {
+                // We're on main domain, use Lax
+                ini_set('session.cookie_samesite', 'Lax');
+            }
+        } else {
+            // Use Lax for localhost
+            ini_set('session.cookie_samesite', 'Lax');
+        }
         
         session_start();
         
