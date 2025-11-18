@@ -16,9 +16,25 @@ setSecureSession();
 
 // Set headers before any output
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
+
+// CORS headers - allow admin subdomain with credentials
+$allowedOrigin = '*';
+if (isset($_SERVER['HTTP_ORIGIN'])) {
+    $allowedOrigins = [
+        'https://durakubeschichtung.de',
+        'https://www.durakubeschichtung.de',
+        'https://admin.durakubeschichtung.de'
+    ];
+    if (in_array($_SERVER['HTTP_ORIGIN'], $allowedOrigins)) {
+        $allowedOrigin = $_SERVER['HTTP_ORIGIN'];
+    }
+}
+header('Access-Control-Allow-Origin: ' . $allowedOrigin);
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
+if ($allowedOrigin !== '*') {
+    header('Access-Control-Allow-Credentials: true');
+}
 
 // Clear any output that might have been generated
 ob_clean();
