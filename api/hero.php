@@ -9,10 +9,27 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
+// Custom error handler to prevent any output
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    // Log error but don't output anything
+    error_log("PHP Error [$errno]: $errstr in $errfile on line $errline");
+    return true; // Suppress default error handler
+});
+
 // Start output buffering
 ob_start();
 
-session_start();
+try {
+    require_once '../config/storage.php';
+    require_once '../config/security.php';
+} catch (Exception $e) {
+    ob_end_clean();
+    http_response_code(500);
+    echo json_encode(['error' => 'Configuration error']);
+    exit;
+}
+
+setSecureSession();
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
@@ -20,8 +37,6 @@ header('Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 ob_clean();
-
-require_once '../config/storage.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     ob_end_clean();
@@ -55,6 +70,7 @@ if ($method === 'GET' && $action === 'get') {
     
     ob_end_clean();
     echo json_encode(['success' => true, 'data' => $heroData]);
+    ob_end_flush();
 }
 // POST/PUT - Update hero section
 elseif (($method === 'POST' || $method === 'PUT') && $action === 'update') {
@@ -75,39 +91,47 @@ elseif (($method === 'POST' || $method === 'PUT') && $action === 'update') {
         $heroData = [];
     }
     
-    // Update fields
+    // Update fields with sanitization
     if (isset($data['background_image'])) {
-        $heroData['background_image'] = $data['background_image'];
+        $imagePath = sanitizeInput($data['background_image'], 500);
+        // Validate image path
+        if (!empty($imagePath) && strpos($imagePath, 'uploads/') !== 0) {
+            ob_end_clean();
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid image path']);
+            exit;
+        }
+        $heroData['background_image'] = $imagePath;
     }
     if (isset($data['title_sq'])) {
-        $heroData['title_sq'] = $data['title_sq'];
+        $heroData['title_sq'] = sanitizeInput($data['title_sq'], 200);
     }
     if (isset($data['title_de'])) {
-        $heroData['title_de'] = $data['title_de'];
+        $heroData['title_de'] = sanitizeInput($data['title_de'], 200);
     }
     if (isset($data['subtitle_sq'])) {
-        $heroData['subtitle_sq'] = $data['subtitle_sq'];
+        $heroData['subtitle_sq'] = sanitizeInput($data['subtitle_sq'], 200);
     }
     if (isset($data['subtitle_de'])) {
-        $heroData['subtitle_de'] = $data['subtitle_de'];
+        $heroData['subtitle_de'] = sanitizeInput($data['subtitle_de'], 200);
     }
     if (isset($data['tagline_sq'])) {
-        $heroData['tagline_sq'] = $data['tagline_sq'];
+        $heroData['tagline_sq'] = sanitizeInput($data['tagline_sq'], 200);
     }
     if (isset($data['tagline_de'])) {
-        $heroData['tagline_de'] = $data['tagline_de'];
+        $heroData['tagline_de'] = sanitizeInput($data['tagline_de'], 200);
     }
     if (isset($data['description_sq'])) {
-        $heroData['description_sq'] = $data['description_sq'];
+        $heroData['description_sq'] = sanitizeText($data['description_sq'], 1000);
     }
     if (isset($data['description_de'])) {
-        $heroData['description_de'] = $data['description_de'];
+        $heroData['description_de'] = sanitizeText($data['description_de'], 1000);
     }
     if (isset($data['cta_text_sq'])) {
-        $heroData['cta_text_sq'] = $data['cta_text_sq'];
+        $heroData['cta_text_sq'] = sanitizeInput($data['cta_text_sq'], 100);
     }
     if (isset($data['cta_text_de'])) {
-        $heroData['cta_text_de'] = $data['cta_text_de'];
+        $heroData['cta_text_de'] = sanitizeInput($data['cta_text_de'], 100);
     }
     
     $heroData['updated_at'] = date('Y-m-d H:i:s');
@@ -115,15 +139,18 @@ elseif (($method === 'POST' || $method === 'PUT') && $action === 'update') {
     if (writeJSON('hero_section.json', $heroData)) {
         ob_end_clean();
         echo json_encode(['success' => true, 'message' => 'Hero section updated successfully']);
+        ob_end_flush();
     } else {
         ob_end_clean();
         http_response_code(500);
         echo json_encode(['error' => 'Failed to update hero section']);
+        ob_end_flush();
     }
 }
 else {
     ob_end_clean();
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
+    ob_end_flush();
 }
 

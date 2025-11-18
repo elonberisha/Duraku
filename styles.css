@@ -203,6 +203,17 @@ body {
     text-shadow: 0 0 10px rgba(249, 115, 22, 0.6);
 }
 
+/* Hero Logo Styling */
+.hero-logo {
+    max-width: 400px;
+    width: 100%;
+    height: auto;
+    margin: 0 auto 2rem;
+    display: block;
+    animation: fadeInUp 1.2s ease-out;
+    filter: drop-shadow(0 4px 20px rgba(249, 115, 22, 0.3));
+}
+
 .nav-right {
     display: flex;
     align-items: center;
@@ -1679,7 +1690,7 @@ body {
 .before-after-slider {
     position: relative;
     width: 100%;
-    height: 250px;
+    height: 220px;
     overflow: hidden;
     border: 2px solid var(--accent-orange);
     border-radius: 0;
@@ -2332,6 +2343,11 @@ body {
         font-size: 0.8rem;
     }
 
+    .hero-logo {
+        max-width: 250px;
+        margin-bottom: 1.5rem;
+    }
+
     .lang-btn {
         padding: 0.35rem 0.7rem;
         font-size: 0.7rem;
@@ -2432,6 +2448,10 @@ body {
 
     .nav-brand h1 {
         font-size: 1.5rem;
+    }
+
+    .hero-logo {
+        max-width: 350px;
     }
 
     .menu-toggle {
@@ -2566,7 +2586,7 @@ body {
     }
 
     .before-after-slider {
-        height: 300px;
+        height: 200px;
     }
 }
 
@@ -2603,7 +2623,7 @@ body {
     }
 
     .before-after-slider {
-        height: 600px;
+        height: 320px;
     }
 }
 

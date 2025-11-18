@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Duraku Gallery</title>
-    <link rel="stylesheet" href="../styles.css">
+    <!-- Favicon -->
+    <!-- Favicon - use absolute path for subdomain compatibility -->
+    <link rel="icon" type="image/x-icon" href="https://durakubeschichtung.de/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://durakubeschichtung.de/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://durakubeschichtung.de/favicon/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://durakubeschichtung.de/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="https://durakubeschichtung.de/favicon/site.webmanifest">
+    <link rel="stylesheet" href="https://durakubeschichtung.de/styles.css">
     <link rel="stylesheet" href="admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -47,6 +54,9 @@
         <!-- Header -->
         <header class="admin-header">
             <div class="admin-header-content">
+                <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <h1><span>DURAKU</span> XHEVDET - Admin Panel</h1>
                 <div class="admin-header-actions">
                     <span class="admin-user">
@@ -54,7 +64,7 @@
                         <span id="adminUsername">Admin</span>
                     </span>
                     <button id="logoutBtn" class="btn btn-secondary">
-                        <i class="fas fa-sign-out-alt"></i> Logout
+                        <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Logout</span>
                     </button>
                 </div>
             </div>
@@ -80,6 +90,10 @@
                     <a href="#categories" class="nav-item" data-section="categories">
                         <i class="fas fa-tags"></i>
                         <span>Categories</span>
+                    </a>
+                    <a href="#contact" class="nav-item" data-section="contact">
+                        <i class="fas fa-address-book"></i>
+                        <span>Contact Information</span>
                     </a>
                     <a href="#settings" class="nav-item" data-section="settings">
                         <i class="fas fa-cog"></i>
@@ -358,6 +372,93 @@
                         <div class="loading-spinner">
                             <i class="fas fa-spinner fa-spin"></i> Loading...
                         </div>
+                    </div>
+                </section>
+
+                <!-- Contact Information Section -->
+                <section id="contactSection" class="admin-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-address-book"></i> Contact Information Management</h2>
+                    </div>
+                    
+                    <div class="settings-container">
+                        <form id="contactForm" class="settings-form">
+                            <!-- Phone -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-phone"></i> Phone</h3>
+                                <div class="form-group">
+                                    <label for="contactPhone">Phone Number (Display) *</label>
+                                    <input type="text" id="contactPhone" name="phone" placeholder="0174/210 97 35" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactPhoneLink">Phone Link (for tel:) *</label>
+                                    <input type="text" id="contactPhoneLink" name="phone_link" placeholder="+491742109735" required>
+                                    <small>Format: +491742109735 (without spaces)</small>
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-envelope"></i> Email</h3>
+                                <div class="form-group">
+                                    <label for="contactEmail">Email Address *</label>
+                                    <input type="email" id="contactEmail" name="email" placeholder="duraku_xhevdet@icloud.com" required>
+                                </div>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-map-marker-alt"></i> Address</h3>
+                                <div class="form-group">
+                                    <label for="contactAddress">Street Address *</label>
+                                    <input type="text" id="contactAddress" name="address" placeholder="Zandter Str. 14" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="contactPostalCode">Postal Code *</label>
+                                        <input type="text" id="contactPostalCode" name="postal_code" placeholder="85095" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="contactCity">City *</label>
+                                        <input type="text" id="contactCity" name="city" placeholder="Denkendorf" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactCountry">Country *</label>
+                                    <input type="text" id="contactCountry" name="country" placeholder="Germany" required>
+                                </div>
+                            </div>
+
+                            <!-- Social Media -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-share-alt"></i> Social Media & Messaging</h3>
+                                <div class="form-group">
+                                    <label for="contactWhatsApp">WhatsApp Number</label>
+                                    <input type="text" id="contactWhatsApp" name="whatsapp" placeholder="491742109735">
+                                    <small>Format: 491742109735 (without + or spaces)</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactViber">Viber Number</label>
+                                    <input type="text" id="contactViber" name="viber" placeholder="+491742109735">
+                                    <small>Format: +491742109735</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactFacebook">Facebook URL</label>
+                                    <input type="url" id="contactFacebook" name="facebook" placeholder="https://www.facebook.com/yourpage">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactInstagram">Instagram URL</label>
+                                    <input type="url" id="contactInstagram" name="instagram" placeholder="https://www.instagram.com/yourpage">
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Contact Information
+                                </button>
+                            </div>
+                            <div id="contactMessage" class="form-message"></div>
+                        </form>
                     </div>
                 </section>
 

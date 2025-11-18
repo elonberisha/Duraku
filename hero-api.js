@@ -35,7 +35,7 @@ async function loadHeroData() {
 function updateHeroSection() {
     if (!heroData) return;
     
-    const currentLang = localStorage.getItem('language') || 'sq';
+    const currentLang = localStorage.getItem('language') || 'de';
     const langSuffix = currentLang === 'sq' ? '_sq' : '_de';
     
     // Update background image

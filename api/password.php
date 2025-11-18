@@ -4,9 +4,10 @@
  * Handles password changes
  */
 
-session_start();
+setSecureSession();
 header('Content-Type: application/json');
 require_once '../config/storage.php';
+require_once '../config/security.php';
 
 // CORS headers
 header('Access-Control-Allow-Origin: *');

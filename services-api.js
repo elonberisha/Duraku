@@ -15,48 +15,37 @@ let categoriesData = [];
  * Load categories from API
  */
 async function loadServices() {
-    console.log('loadServices() called');
     // Try both possible IDs (servicesGrid for services.html, servicesGridPreview for index.html)
     const servicesGrid = document.getElementById('servicesGrid') || document.getElementById('servicesGridPreview');
     if (!servicesGrid) {
-        console.warn('Services grid not found');
         return;
     }
     
-    console.log('API_BASE:', window.API_BASE || 'api');
     const apiUrl = `${window.API_BASE || 'api'}/categories.php?action=list`;
-    console.log('Fetching from:', apiUrl);
     
     try {
         const response = await fetch(apiUrl);
-        
-        console.log('Response status:', response.status, response.statusText);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const text = await response.text();
-        console.log('Response text:', text);
         
         let data;
         try {
             data = JSON.parse(text);
         } catch (parseError) {
             console.error('Failed to parse JSON:', parseError);
-            console.error('Response was:', text);
             throw new Error('Invalid JSON response from server');
         }
         
-        console.log('Categories API response:', data);
-        
         if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
             categoriesData = data.data;
-            console.log('Loaded categories:', categoriesData);
             renderServices();
         } else {
             console.error('API returned error or no data:', data);
-            const currentLang = localStorage.getItem('language') || 'sq';
+            const currentLang = localStorage.getItem('language') || 'de';
             const noServicesMsg = currentLang === 'sq' 
                 ? 'Nuk ka shërbime të disponueshme ende. Ju lutemi shtoni kategori përmes panelit të administratorit.'
                 : 'No services available yet. Please add categories through the admin panel.';
@@ -68,7 +57,7 @@ async function loadServices() {
         }
     } catch (error) {
         console.error('Failed to load services:', error);
-        const currentLang = localStorage.getItem('language') || 'sq';
+        const currentLang = localStorage.getItem('language') || 'de';
         const errorMsg = currentLang === 'sq' 
             ? `Dështoi ngarkimi i shërbimeve: ${error.message}`
             : `Failed to load services: ${error.message}`;
@@ -84,25 +73,20 @@ async function loadServices() {
  * Render services from categories
  */
 function renderServices() {
-    console.log('renderServices() called, categoriesData:', categoriesData);
     // Try both possible IDs (servicesGrid for services.html, servicesGridPreview for index.html)
     const servicesGrid = document.getElementById('servicesGrid') || document.getElementById('servicesGridPreview');
     if (!servicesGrid) {
-        console.warn('Services grid not found in renderServices()');
         return;
     }
     
-    const currentLang = localStorage.getItem('language') || 'sq';
+    const currentLang = localStorage.getItem('language') || 'de';
     const langSuffix = currentLang === 'sq' ? '_sq' : '_de';
-    
-    console.log('Current language:', currentLang, 'Lang suffix:', langSuffix);
     
     // Clear existing content
     servicesGrid.innerHTML = '';
     
     if (!categoriesData || categoriesData.length === 0) {
-        console.warn('No categories data available');
-        const currentLang = localStorage.getItem('language') || 'sq';
+        const currentLang = localStorage.getItem('language') || 'de';
         const noServicesMsg = currentLang === 'sq' 
             ? 'Nuk ka shërbime të disponueshme ende. Ju lutemi shtoni kategori përmes panelit të administratorit.'
             : 'No services available yet. Please add categories through the admin panel.';
@@ -113,8 +97,6 @@ function renderServices() {
         `;
         return;
     }
-    
-    console.log('Rendering', categoriesData.length, 'services');
     
     // Icons array for different services
     const icons = [
@@ -190,7 +172,6 @@ function updateServicesOnLanguageChange() {
 // Load services on page load
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOMContentLoaded - Loading services...');
         loadServices();
         
         // Listen for language changes
@@ -215,7 +196,6 @@ if (document.readyState === 'loading') {
     });
 } else {
     // DOM already loaded
-    console.log('DOM already loaded - Loading services...');
     loadServices();
     
     // Listen for language changes

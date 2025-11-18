@@ -7,27 +7,21 @@ const GALLERY_API = 'api/gallery.php';
 
 // Initialize gallery from API
 async function initGalleryFromAPI() {
-    console.log('initGalleryFromAPI() called');
     try {
         // Get current language
-        const currentLang = localStorage.getItem('language') || 'sq';
-        console.log('Current language:', currentLang);
+        const currentLang = localStorage.getItem('language') || 'de';
         
         // Load categories
-        console.log('Fetching categories from:', `${GALLERY_API}?action=categories`);
         const categoriesResponse = await fetch(`${GALLERY_API}?action=categories`);
         const categoriesData = await categoriesResponse.json();
-        console.log('Categories response:', categoriesData);
         
         if (categoriesData.success) {
             updateCategoryDropdown(categoriesData.data, currentLang);
         }
         
         // Load gallery items
-        console.log('Fetching gallery items from:', `${GALLERY_API}?action=list`);
         const response = await fetch(`${GALLERY_API}?action=list`);
         const data = await response.json();
-        console.log('Gallery items response:', data);
         
         if (data.success) {
             renderGalleryFromAPI(data.data, currentLang);
@@ -79,11 +73,8 @@ let globalGalleryItems = [];
 
 // Render gallery items from API
 function renderGalleryFromAPI(items, lang, categoryId = 'all') {
-    console.log('renderGalleryFromAPI() called, items:', items, 'lang:', lang, 'categoryId:', categoryId);
     const galleryGrid = document.getElementById('galleryGrid');
-    console.log('Gallery grid element:', galleryGrid);
     if (!galleryGrid) {
-        console.warn('Gallery grid element not found');
         return;
     }
     
@@ -95,10 +86,9 @@ function renderGalleryFromAPI(items, lang, categoryId = 'all') {
     
     // If no items, show message
     if (!items || items.length === 0) {
-        console.warn('No gallery items to render');
         galleryGrid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
-                <p style="color: #a0a0a0; font-size: 1.1rem;">${lang === 'sq' ? 'Nuk ka artikuj në galeri ende. Ju lutemi shtoni artikuj përmes panelit të administratorit.' : 'No gallery items available yet. Please add items through the admin panel.'}</p>
+                <p style="color: #a0a0a0; font-size: 1.1rem;">${lang === 'sq' ? 'Nuk ka artikuj në galeri ende. Ju lutemi shtoni artikuj përmes panelit të administratorit.' : 'Noch keine Galerie-Artikel verfügbar. Bitte fügen Sie Artikel über das Admin-Panel hinzu.'}</p>
             </div>
         `;
         return;
@@ -112,13 +102,12 @@ function renderGalleryFromAPI(items, lang, categoryId = 'all') {
     
     // Limit to first 4 items for preview on index page
     const previewItems = filteredItems.slice(0, 4);
-    console.log('Filtered items:', filteredItems.length, 'Preview items:', previewItems.length);
     
     // If no items after filtering, show message
     if (previewItems.length === 0) {
         galleryGrid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
-                <p style="color: #a0a0a0; font-size: 1.1rem;">${lang === 'sq' ? 'Nuk ka artikuj në këtë kategori ende.' : 'No items in this category yet.'}</p>
+                <p style="color: #a0a0a0; font-size: 1.1rem;">${lang === 'sq' ? 'Nuk ka artikuj në këtë kategori ende.' : 'Noch keine Artikel in dieser Kategorie.'}</p>
             </div>
         `;
         return;
@@ -138,6 +127,9 @@ function renderGalleryFromAPI(items, lang, categoryId = 'all') {
         } else if (typeof window.initSliders === 'function') {
             window.initSliders();
         }
+        
+        // Setup fullscreen modal click handlers for new images
+        setupFullscreenModalHandlers();
     }, 100);
 }
 
@@ -156,7 +148,7 @@ function setupCategoryFilter() {
     
     newDropdown.addEventListener('change', function() {
         const selectedCategoryId = this.value;
-        const currentLang = localStorage.getItem('language') || 'sq';
+        const currentLang = localStorage.getItem('language') || 'de';
         
         // Show/hide category info
         if (selectedCategoryId === 'all') {
@@ -228,11 +220,9 @@ function escapeHtml(text) {
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOMContentLoaded - Initializing gallery...');
         initGalleryFromAPI();
     });
 } else {
-    console.log('DOM already loaded - Initializing gallery...');
     initGalleryFromAPI();
 }
 

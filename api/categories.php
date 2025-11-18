@@ -4,19 +4,39 @@
  * Handles CRUD operations for categories (JSON-based, no database)
  */
 
-session_start();
-header('Content-Type: application/json');
-require_once '../config/storage.php';
+// Disable error display
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+// Custom error handler to prevent any output
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    error_log("PHP Error [$errno]: $errstr in $errfile on line $errline");
+    return true;
+});
+
+// Start output buffering
+ob_start();
+
+try {
+    require_once '../config/storage.php';
+    require_once '../config/security.php';
+} catch (Exception $e) {
+    ob_end_clean();
+    http_response_code(500);
+    echo json_encode(['error' => 'Configuration error']);
+    exit;
+}
+
+setSecureSession();
+header('Content-Type: application/json; charset=utf-8');
 
 // CORS headers
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-ob_start();
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
+ob_clean();
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     ob_end_clean();
@@ -41,6 +61,7 @@ if ($method === 'GET' && $action === 'list') {
     $categories = readJSON('categories.json');
     ob_end_clean();
     echo json_encode(['success' => true, 'data' => $categories]);
+    ob_end_flush();
 }
 // GET - Get single category
 elseif ($method === 'GET' && $action === 'get') {
@@ -63,6 +84,7 @@ elseif ($method === 'GET' && $action === 'get') {
         http_response_code(404);
         echo json_encode(['error' => 'Category not found']);
     }
+    ob_end_flush();
 }
 // POST - Create new category
 elseif ($method === 'POST' && $action === 'create') {
@@ -79,12 +101,25 @@ elseif ($method === 'POST' && $action === 'create') {
     
     $categories = readJSON('categories.json');
     
+    // Sanitize inputs
+    $name_sq = sanitizeInput($data['name_sq'] ?? '', 200);
+    $name_de = sanitizeInput($data['name_de'] ?? '', 200);
+    $description_sq = sanitizeText($data['description_sq'] ?? '', 1000);
+    $description_de = sanitizeText($data['description_de'] ?? '', 1000);
+    
+    if (empty($name_sq) || empty($name_de)) {
+        ob_end_clean();
+        http_response_code(400);
+        echo json_encode(['error' => 'Name (Albanian and German) is required']);
+        exit;
+    }
+    
     $newCategory = [
         'id' => getNextId('categories.json'),
-        'name_sq' => trim($data['name_sq']),
-        'name_de' => trim($data['name_de']),
-        'description_sq' => trim($data['description_sq'] ?? ''),
-        'description_de' => trim($data['description_de'] ?? ''),
+        'name_sq' => $name_sq,
+        'name_de' => $name_de,
+        'description_sq' => $description_sq,
+        'description_de' => $description_de,
         'created_at' => date('Y-m-d H:i:s'),
         'updated_at' => date('Y-m-d H:i:s')
     ];
@@ -98,6 +133,7 @@ elseif ($method === 'POST' && $action === 'create') {
         http_response_code(500);
         echo json_encode(['error' => 'Failed to save category']);
     }
+    ob_end_flush();
 }
 // PUT - Update category
 elseif ($method === 'PUT' && $action === 'update') {
@@ -113,7 +149,13 @@ elseif ($method === 'PUT' && $action === 'update') {
         exit;
     }
     
-    if (!isset($data['name_sq']) || !isset($data['name_de'])) {
+    // Sanitize inputs
+    $name_sq = sanitizeInput($data['name_sq'] ?? '', 200);
+    $name_de = sanitizeInput($data['name_de'] ?? '', 200);
+    $description_sq = sanitizeText($data['description_sq'] ?? '', 1000);
+    $description_de = sanitizeText($data['description_de'] ?? '', 1000);
+    
+    if (empty($name_sq) || empty($name_de)) {
         ob_end_clean();
         http_response_code(400);
         echo json_encode(['error' => 'Name (Albanian and German) is required']);
@@ -125,10 +167,10 @@ elseif ($method === 'PUT' && $action === 'update') {
     
     foreach ($categories as &$cat) {
         if ($cat['id'] == $id) {
-            $cat['name_sq'] = trim($data['name_sq']);
-            $cat['name_de'] = trim($data['name_de']);
-            $cat['description_sq'] = trim($data['description_sq'] ?? '');
-            $cat['description_de'] = trim($data['description_de'] ?? '');
+            $cat['name_sq'] = $name_sq;
+            $cat['name_de'] = $name_de;
+            $cat['description_sq'] = $description_sq;
+            $cat['description_de'] = $description_de;
             $cat['updated_at'] = date('Y-m-d H:i:s');
             $found = true;
             break;
@@ -142,6 +184,7 @@ elseif ($method === 'PUT' && $action === 'update') {
         http_response_code(404);
         echo json_encode(['error' => 'Category not found or failed to update']);
     }
+    ob_end_flush();
 }
 // DELETE - Delete category
 elseif ($method === 'DELETE' && $action === 'delete') {
@@ -187,10 +230,12 @@ elseif ($method === 'DELETE' && $action === 'delete') {
         http_response_code(500);
         echo json_encode(['error' => 'Failed to delete category']);
     }
+    ob_end_flush();
 }
 else {
     ob_end_clean();
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
+    ob_end_flush();
 }
 

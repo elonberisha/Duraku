@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Get current language
     function getCurrentLang() {
-        return localStorage.getItem('language') || 'sq';
+        return localStorage.getItem('language') || 'de';
     }
     
     if (galleryDropdown) {
@@ -221,7 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalClose = document.querySelector('.modal-close');
     const modalPrev = document.querySelector('.modal-prev');
     const modalNext = document.querySelector('.modal-next');
-    const galleryImages = document.querySelectorAll('.slider-image img');
     
     // Store all images and current index
     let allImages = [];
@@ -230,6 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Collect all images from gallery
     function collectAllImages() {
         allImages = [];
+        const galleryImages = document.querySelectorAll('.slider-image img');
         galleryImages.forEach((img, index) => {
             const label = img.closest('.slider-image').querySelector('.image-label');
             allImages.push({
@@ -241,15 +241,51 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Initialize image collection
+    // Function to setup image click handlers
+    function setupImageClickHandlers() {
+        const galleryImages = document.querySelectorAll('.slider-image img');
+        
+        galleryImages.forEach((img) => {
+            // Remove existing listeners by cloning the element
+            const newImg = img.cloneNode(true);
+            img.parentNode.replaceChild(newImg, img);
+            
+            // Add click event listener
+            newImg.addEventListener('click', function(e) {
+                // Don't open modal if dragging
+                if (globalIsDragging) return;
+                
+                // Recollect images to ensure we have the latest
+                collectAllImages();
+                
+                // Find the index in allImages array
+                const clickedIndex = allImages.findIndex(imgData => imgData.src === this.src);
+                if (clickedIndex !== -1) {
+                    openModal(clickedIndex);
+                } else {
+                    // Fallback: use current index
+                    const label = this.closest('.slider-image').querySelector('.image-label');
+                    const newIndex = allImages.findIndex(imgData => 
+                        imgData.src === this.src && imgData.label === (label ? label.textContent : '')
+                    );
+                    openModal(newIndex !== -1 ? newIndex : 0);
+                }
+            });
+        });
+    }
+    
+    // Initialize image collection and handlers
     collectAllImages();
+    setupImageClickHandlers();
     
     if (modal && modalImage && modalLabel && modalClose) {
         // Function to open modal with specific image
-        function openModal(imageIndex) {
+        window.openModal = function(imageIndex) {
+            collectAllImages();
             if (imageIndex < 0 || imageIndex >= allImages.length) return;
             
             currentImageIndex = imageIndex;
+            window.currentImageIndex = imageIndex;
             const image = allImages[currentImageIndex];
             modalImage.src = image.src;
             modalLabel.textContent = image.label;
@@ -263,74 +299,59 @@ document.addEventListener('DOMContentLoaded', () => {
             if (modalNext) {
                 modalNext.style.display = allImages.length > 1 ? 'flex' : 'none';
             }
-        }
+        };
         
         // Function to navigate to previous image
-        function showPrevious() {
+        window.showPrevious = function() {
+            collectAllImages();
             if (allImages.length === 0) return;
             currentImageIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
+            window.currentImageIndex = currentImageIndex;
             const image = allImages[currentImageIndex];
             modalImage.src = image.src;
             modalLabel.textContent = image.label;
-        }
+        };
         
         // Function to navigate to next image
-        function showNext() {
+        window.showNext = function() {
+            collectAllImages();
             if (allImages.length === 0) return;
             currentImageIndex = (currentImageIndex + 1) % allImages.length;
+            window.currentImageIndex = currentImageIndex;
             const image = allImages[currentImageIndex];
             modalImage.src = image.src;
             modalLabel.textContent = image.label;
-        }
+        };
         
-        // Open modal on image click
-        galleryImages.forEach((img, index) => {
-            img.addEventListener('click', function(e) {
-                // Don't open modal if dragging
-                if (globalIsDragging) return;
-                
-                // Find the index in allImages array
-                const clickedIndex = allImages.findIndex(imgData => imgData.src === this.src);
-                if (clickedIndex !== -1) {
-                    openModal(clickedIndex);
-                } else {
-                    // Fallback: use current index
-                    collectAllImages();
-                    const label = this.closest('.slider-image').querySelector('.image-label');
-                    const newIndex = allImages.findIndex(imgData => 
-                        imgData.src === this.src && imgData.label === (label ? label.textContent : '')
-                    );
-                    openModal(newIndex !== -1 ? newIndex : 0);
-                }
-            });
-        });
+        // Image click handlers are now set up in setupImageClickHandlers()
+        // which is called after images are dynamically loaded
         
         // Navigation buttons
         if (modalPrev) {
             modalPrev.addEventListener('click', function(e) {
                 e.stopPropagation();
-                showPrevious();
+                if (window.showPrevious) window.showPrevious();
             });
         }
         
         if (modalNext) {
             modalNext.addEventListener('click', function(e) {
                 e.stopPropagation();
-                showNext();
+                if (window.showNext) window.showNext();
             });
         }
         
         // Close modal
-        function closeModal() {
+        window.closeModal = function() {
             modal.style.display = 'none';
             document.body.style.overflow = '';
-        }
+        };
         
-        modalClose.addEventListener('click', closeModal);
+        modalClose.addEventListener('click', window.closeModal);
         
         modal.addEventListener('click', function(e) {
             if (e.target === modal) {
-                closeModal();
+                window.closeModal();
             }
         });
         
@@ -339,11 +360,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (modal.style.display !== 'flex') return;
             
             if (e.key === 'Escape') {
-                closeModal();
+                window.closeModal();
             } else if (e.key === 'ArrowLeft') {
-                showPrevious();
+                if (window.showPrevious) window.showPrevious();
             } else if (e.key === 'ArrowRight') {
-                showNext();
+                if (window.showNext) window.showNext();
             }
         });
         
@@ -367,13 +388,71 @@ document.addEventListener('DOMContentLoaded', () => {
             if (Math.abs(diff) > swipeThreshold) {
                 if (diff > 0) {
                     // Swipe left - next image
-                    showNext();
+                    if (window.showNext) window.showNext();
                 } else {
                     // Swipe right - previous image
-                    showPrevious();
+                    if (window.showPrevious) window.showPrevious();
                 }
             }
         }
     }
 });
+
+// Function to setup fullscreen modal handlers for dynamically loaded images
+window.setupFullscreenModalHandlers = function() {
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalLabel = document.getElementById('modalLabel');
+    
+    if (!modal || !modalImage || !modalLabel) return;
+    
+    // Collect all images from gallery
+    function collectAllImages() {
+        window.allImages = [];
+        const galleryImages = document.querySelectorAll('.slider-image img');
+        galleryImages.forEach((img, index) => {
+            const label = img.closest('.slider-image').querySelector('.image-label');
+            window.allImages.push({
+                src: img.src,
+                alt: img.alt,
+                label: label ? label.textContent : '',
+                index: index
+            });
+        });
+    }
+    
+    // Setup click handlers for all images
+    const galleryImages = document.querySelectorAll('.slider-image img');
+    galleryImages.forEach((img) => {
+        // Check if already has listener
+        if (img.dataset.hasModalListener === 'true') return;
+        img.dataset.hasModalListener = 'true';
+        
+        img.addEventListener('click', function(e) {
+            // Don't open modal if dragging
+            if (window.globalIsDragging) return;
+            
+            // Recollect images to ensure we have the latest
+            collectAllImages();
+            
+            // Find the index in allImages array
+            const clickedIndex = window.allImages.findIndex(imgData => imgData.src === this.src);
+            if (clickedIndex !== -1 && window.openModal) {
+                window.openModal(clickedIndex);
+            } else {
+                // Fallback: use current index
+                const label = this.closest('.slider-image').querySelector('.image-label');
+                const newIndex = window.allImages.findIndex(imgData => 
+                    imgData.src === this.src && imgData.label === (label ? label.textContent : '')
+                );
+                if (window.openModal) {
+                    window.openModal(newIndex !== -1 ? newIndex : 0);
+                }
+            }
+        });
+    });
+    
+    // Update allImages reference
+    collectAllImages();
+};
 

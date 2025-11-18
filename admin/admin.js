@@ -3,7 +3,11 @@
  * Handles authentication, gallery management, and UI interactions
  */
 
-const API_BASE = '../api';
+// API Base URL - works from both subdomain and subdirectory
+// If on admin subdomain, use full domain path, otherwise use relative path
+const API_BASE = (window.location.hostname.startsWith('admin.') || window.location.hostname === 'admin') 
+    ? 'https://durakubeschichtung.de/api' 
+    : '../api';
 
 // State management
 let currentUser = null;
@@ -44,8 +48,26 @@ document.addEventListener('DOMContentLoaded', () => {
 // Check authentication status
 async function checkAuth() {
     try {
-        const response = await fetch(`${API_BASE}/auth.php?action=check`);
-        const data = await response.json();
+        const response = await fetch(`${API_BASE}/auth.php?action=check`, {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (parseError) {
+            console.error('Failed to parse JSON:', parseError, 'Response:', text);
+            throw new Error('Invalid JSON response from server');
+        }
         
         if (data.logged_in) {
             currentUser = data.user;
@@ -133,6 +155,66 @@ function setupEventListeners() {
     // Logout
     logoutBtn.addEventListener('click', handleLogout);
     
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const adminSidebar = document.querySelector('.admin-sidebar');
+    
+    if (mobileMenuToggle && adminSidebar) {
+        mobileMenuToggle.addEventListener('click', () => {
+            adminSidebar.classList.toggle('mobile-open');
+            const icon = mobileMenuToggle.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            }
+        });
+        
+        // Close mobile menu when clicking on a nav item
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    adminSidebar.classList.remove('mobile-open');
+                    const icon = mobileMenuToggle.querySelector('i');
+                    if (icon) {
+                        icon.classList.add('fa-bars');
+                        icon.classList.remove('fa-times');
+                    }
+                }
+            });
+        });
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && 
+                adminSidebar.classList.contains('mobile-open') &&
+                !adminSidebar.contains(e.target) &&
+                !mobileMenuToggle.contains(e.target)) {
+                adminSidebar.classList.remove('mobile-open');
+                const icon = mobileMenuToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-times');
+                }
+            }
+        });
+        
+        // Close mobile menu when window is resized to desktop size
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (window.innerWidth > 768 && adminSidebar.classList.contains('mobile-open')) {
+                    adminSidebar.classList.remove('mobile-open');
+                    const icon = mobileMenuToggle.querySelector('i');
+                    if (icon) {
+                        icon.classList.add('fa-bars');
+                        icon.classList.remove('fa-times');
+                    }
+                }
+            }, 250);
+        });
+    }
+    
     // Navigation
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', (e) => {
@@ -218,7 +300,6 @@ function setupEventListeners() {
     if (addCategoryBtn) {
         addCategoryBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Add category button clicked');
             if (typeof openCategoryModal === 'function') {
                 openCategoryModal();
             } else {
@@ -303,15 +384,38 @@ async function handleLogin(e) {
     try {
         const response = await fetch(`${API_BASE}/auth.php?action=login`, {
             method: 'POST',
+            credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(formData)
         });
         
-        const data = await response.json();
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorData;
+            try {
+                errorData = JSON.parse(errorText);
+            } catch {
+                errorData = { error: `HTTP error! status: ${response.status}` };
+            }
+            errorDiv.textContent = errorData.error || 'Login failed';
+            errorDiv.classList.add('show');
+            return;
+        }
         
-        if (response.ok && data.success) {
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (parseError) {
+            console.error('Failed to parse JSON:', parseError, 'Response:', text);
+            errorDiv.textContent = 'Invalid response from server';
+            errorDiv.classList.add('show');
+            return;
+        }
+        
+        if (data.success) {
             // Check if 2FA is required
             if (data.requires_2fa) {
                 // Show 2FA modal
@@ -448,11 +552,22 @@ function renderGalleryItems(items = galleryItems) {
         return;
     }
     
-    galleryItemsList.innerHTML = items.map(item => `
+    galleryItemsList.innerHTML = items.map(item => {
+        // Fix image paths - remove any leading slashes and ensure correct relative path
+        // Use absolute path for images when on admin subdomain
+        const baseUrl = (window.location.hostname.startsWith('admin.') || window.location.hostname === 'admin')
+            ? 'https://durakubeschichtung.de/'
+            : '../';
+        const beforePath = item.before_image.startsWith('/') ? item.before_image.substring(1) : item.before_image;
+        const afterPath = item.after_image.startsWith('/') ? item.after_image.substring(1) : item.after_image;
+        const beforeSrc = beforePath.startsWith('uploads/') ? `${baseUrl}${beforePath}` : `${baseUrl}uploads/gallery/${beforePath}`;
+        const afterSrc = afterPath.startsWith('uploads/') ? `${baseUrl}${afterPath}` : `${baseUrl}uploads/gallery/${afterPath}`;
+        
+        return `
         <div class="gallery-item-card" data-id="${item.id}">
             <div class="gallery-item-images">
-                <img src="../${item.before_image}" alt="Before" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23333\' width=\'200\' height=\'200\'/%3E%3Ctext fill=\'%23999\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EBefore%3C/text%3E%3C/svg%3E'">
-                <img src="../${item.after_image}" alt="After" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23333\' width=\'200\' height=\'200\'/%3E%3Ctext fill=\'%23999\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EAfter%3C/text%3E%3C/svg%3E'">
+                <img src="${beforeSrc}" alt="Before" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23333\' width=\'200\' height=\'200\'/%3E%3Ctext fill=\'%23999\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EBefore%3C/text%3E%3C/svg%3E'">
+                <img src="${afterSrc}" alt="After" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23333\' width=\'200\' height=\'200\'/%3E%3Ctext fill=\'%23999\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EAfter%3C/text%3E%3C/svg%3E'">
             </div>
             <div class="gallery-item-info">
                 <h3>${escapeHtml(item.name)}</h3>
@@ -469,7 +584,8 @@ function renderGalleryItems(items = galleryItems) {
                 </button>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 // Filter gallery items
@@ -527,9 +643,16 @@ async function loadGalleryItemForEdit(itemId) {
             document.getElementById('itemDescription').value = item.description || '';
             document.getElementById('itemComment').value = item.comment || '';
             
-            // Set image previews
-            setImagePreview('beforeImagePreview', `../${item.before_image}`);
-            setImagePreview('afterImagePreview', `../${item.after_image}`);
+            // Set image previews - fix paths
+            const baseUrl = (window.location.hostname.startsWith('admin.') || window.location.hostname === 'admin')
+                ? 'https://durakubeschichtung.de/'
+                : '../';
+            const beforePath = item.before_image.startsWith('/') ? item.before_image.substring(1) : item.before_image;
+            const afterPath = item.after_image.startsWith('/') ? item.after_image.substring(1) : item.after_image;
+            const beforeSrc = beforePath.startsWith('uploads/') ? `${baseUrl}${beforePath}` : `${baseUrl}uploads/gallery/${beforePath}`;
+            const afterSrc = afterPath.startsWith('uploads/') ? `${baseUrl}${afterPath}` : `${baseUrl}uploads/gallery/${afterPath}`;
+            setImagePreview('beforeImagePreview', beforeSrc);
+            setImagePreview('afterImagePreview', afterSrc);
         }
     } catch (error) {
         console.error('Failed to load item:', error);
@@ -1187,7 +1310,6 @@ function renderCategories(categories) {
 }
 
 function openCategoryModal(categoryId = null) {
-    console.log('openCategoryModal called with categoryId:', categoryId);
     editingCategoryId = categoryId;
     const modal = document.getElementById('categoryModal');
     const form = document.getElementById('categoryForm');
@@ -1222,7 +1344,6 @@ function openCategoryModal(categoryId = null) {
     }
     
     modal.classList.add('active');
-    console.log('Modal opened successfully');
 }
 
 function closeCategoryModal() {
@@ -1607,7 +1728,6 @@ async function handleSendResetCode() {
     
     try {
         const url = `${API_BASE}/forget_password.php?action=send`;
-        console.log('Sending reset code request to:', url);
         
         const response = await fetch(url, {
             method: 'POST',
@@ -1618,14 +1738,11 @@ async function handleSendResetCode() {
             body: JSON.stringify({ username })
         });
         
-        console.log('Response status:', response.status);
-        
         if (!response.ok && response.status !== 400 && response.status !== 500) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('Response data:', data);
         
         if (response.ok && data.success) {
             if (successDiv) {
@@ -1685,9 +1802,6 @@ async function handleResetPassword() {
     
     try {
         const url = `${API_BASE}/forget_password.php?action=reset`;
-        console.log('Sending reset request to:', url);
-        console.log('Code:', code);
-        console.log('New password length:', newPassword.length);
         
         const response = await fetch(url, {
             method: 'POST',
@@ -1701,8 +1815,6 @@ async function handleResetPassword() {
             })
         });
         
-        console.log('Response status:', response.status);
-        
         // Check if response is JSON
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
@@ -1712,7 +1824,6 @@ async function handleResetPassword() {
         }
         
         const data = await response.json();
-        console.log('Response data:', data);
         
         if (response.ok && data.success) {
             if (successDiv) {
@@ -1789,6 +1900,104 @@ async function handleResendResetCode() {
         }
     }
 }
+
+// Load contact information
+async function loadContactInfo() {
+    try {
+        const response = await fetch(`${API_BASE}/contact_info.php?action=get`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const contact = data.data;
+            document.getElementById('contactPhone').value = contact.phone || '';
+            document.getElementById('contactPhoneLink').value = contact.phone_link || '';
+            document.getElementById('contactEmail').value = contact.email || '';
+            document.getElementById('contactAddress').value = contact.address || '';
+            document.getElementById('contactPostalCode').value = contact.postal_code || '';
+            document.getElementById('contactCity').value = contact.city || '';
+            document.getElementById('contactCountry').value = contact.country || '';
+            document.getElementById('contactWhatsApp').value = contact.whatsapp || '';
+            document.getElementById('contactViber').value = contact.viber || '';
+            document.getElementById('contactFacebook').value = contact.facebook || '';
+            document.getElementById('contactInstagram').value = contact.instagram || '';
+        }
+    } catch (error) {
+        console.error('Failed to load contact information:', error);
+    }
+}
+
+// Handle contact form submission
+const contactForm = document.getElementById('contactForm');
+if (contactForm) {
+    contactForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const messageDiv = document.getElementById('contactMessage');
+        messageDiv.textContent = '';
+        messageDiv.classList.remove('show', 'error', 'success');
+        
+        const formData = {
+            phone: document.getElementById('contactPhone').value.trim(),
+            phone_link: document.getElementById('contactPhoneLink').value.trim(),
+            email: document.getElementById('contactEmail').value.trim(),
+            address: document.getElementById('contactAddress').value.trim(),
+            postal_code: document.getElementById('contactPostalCode').value.trim(),
+            city: document.getElementById('contactCity').value.trim(),
+            country: document.getElementById('contactCountry').value.trim(),
+            whatsapp: document.getElementById('contactWhatsApp').value.trim(),
+            viber: document.getElementById('contactViber').value.trim(),
+            facebook: document.getElementById('contactFacebook').value.trim(),
+            instagram: document.getElementById('contactInstagram').value.trim()
+        };
+        
+        try {
+            const response = await fetch(`${API_BASE}/contact_info.php?action=update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                messageDiv.textContent = data.message || 'Contact information updated successfully!';
+                messageDiv.classList.add('show', 'success');
+            } else {
+                messageDiv.textContent = data.error || 'Failed to update contact information';
+                messageDiv.classList.add('show', 'error');
+            }
+        } catch (error) {
+            console.error('Error updating contact information:', error);
+            messageDiv.textContent = 'Connection error. Please try again.';
+            messageDiv.classList.add('show', 'error');
+        }
+    });
+}
+
+// Load contact info when contact section is shown
+document.addEventListener('DOMContentLoaded', () => {
+    const contactSection = document.getElementById('contactSection');
+    if (contactSection) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    if (contactSection.classList.contains('active')) {
+                        loadContactInfo();
+                    }
+                }
+            });
+        });
+        observer.observe(contactSection, { attributes: true });
+        
+        // Also load on initial page load if section is active
+        if (contactSection.classList.contains('active')) {
+            loadContactInfo();
+        }
+    }
+});
 
 // Make functions globally available
 window.editGalleryItem = editGalleryItem;

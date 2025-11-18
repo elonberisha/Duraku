@@ -15,20 +15,15 @@ let aboutData = null;
  * Load about section data from API
  */
 async function loadAboutData() {
-    console.log('loadAboutData() called, API_BASE:', window.API_BASE || 'api');
     try {
         const apiUrl = `${window.API_BASE || 'api'}/about.php?action=get`;
-        console.log('Fetching about data from:', apiUrl);
         const response = await fetch(apiUrl);
-        
-        console.log('About API response status:', response.status);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const text = await response.text();
-        console.log('About API response text:', text);
         
         let data;
         try {
@@ -40,7 +35,6 @@ async function loadAboutData() {
         
         if (data.success && data.data) {
             aboutData = data.data;
-            console.log('About data loaded:', aboutData);
             updateAboutSection();
         } else {
             console.error('API returned error:', data.error);
@@ -56,31 +50,23 @@ async function loadAboutData() {
  */
 function updateAboutSection() {
     if (!aboutData) {
-        console.warn('updateAboutSection() called but aboutData is null');
         return;
     }
     
-    console.log('updateAboutSection() called, aboutData:', aboutData);
-    
-    const currentLang = localStorage.getItem('language') || 'sq';
+    const currentLang = localStorage.getItem('language') || 'de';
     const langSuffix = currentLang === 'sq' ? '_sq' : '_de';
     
     // Update about preview image (index.html)
     const aboutPreviewImage = document.querySelector('.about-preview-image');
-    console.log('About preview image element:', aboutPreviewImage);
     if (aboutPreviewImage) {
         if (aboutData.image) {
             // Fix path separators (convert backslashes to forward slashes)
             const imagePath = aboutData.image.replace(/\\/g, '/');
             aboutPreviewImage.innerHTML = `<img src="${imagePath}" alt="About Us" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">`;
-            console.log('About image updated:', imagePath);
         } else {
             // Clear image if no image is set
             aboutPreviewImage.innerHTML = '';
-            console.log('No about image to display (image field is empty)');
         }
-    } else {
-        console.warn('About preview image element (.about-preview-image) not found');
     }
     
     // Update description - update all description elements
@@ -139,10 +125,8 @@ function updateAboutSection() {
             const imagePath = aboutData.team_image.replace(/\\/g, '/');
             teamImage.src = imagePath;
             teamImageContainer.style.display = 'block';
-            console.log('Team image updated:', imagePath);
         } else {
             teamImageContainer.style.display = 'none';
-            console.log('No team image to display');
         }
     }
 }
@@ -159,7 +143,6 @@ function updateAboutOnLanguageChange() {
 // Load about data on page load
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOMContentLoaded - Loading about data...');
         loadAboutData();
         
         // Listen for language changes
@@ -184,7 +167,6 @@ if (document.readyState === 'loading') {
     });
 } else {
     // DOM already loaded
-    console.log('DOM already loaded - Loading about data...');
     loadAboutData();
     
     // Listen for language changes

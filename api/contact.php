@@ -50,18 +50,22 @@ if (!isset($data['name']) || !isset($data['email']) || !isset($data['message']))
     exit;
 }
 
-$name = trim($data['name']);
-$email = trim($data['email']);
-$phone = trim($data['phone'] ?? '');
-$message = trim($data['message']);
+// Sanitize inputs
+require_once '../config/security.php';
+$name = sanitizeInput($data['name'] ?? '', 100);
+$email = validateEmail($data['email'] ?? '');
+$phone = sanitizeInput($data['phone'] ?? '', 20);
+$message = sanitizeText($data['message'] ?? '', 2000);
 
-// Validate email format
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+// Validate required fields after sanitization
+if (empty($name) || !$email || empty($message)) {
     ob_end_clean();
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid email address']);
+    echo json_encode(['error' => 'Name, email, and message are required']);
     exit;
 }
+
+// Email is already validated by validateEmail()
 
 // Get recipient email from SMTP config (the admin email)
 $recipientEmail = SMTP_FROM_EMAIL; // Send to the configured SMTP email
@@ -128,4 +132,6 @@ if (sendEmail($recipientEmail, $subject, $emailMessage, true)) {
     http_response_code(500);
     echo json_encode(['error' => 'Failed to send message. Please try again later.']);
 }
+
+ob_end_flush();
 

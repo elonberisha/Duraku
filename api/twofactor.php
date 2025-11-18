@@ -9,10 +9,28 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
+// Custom error handler to prevent any output
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    error_log("PHP Error [$errno]: $errstr in $errfile on line $errline");
+    return true;
+});
+
 // Start output buffering to catch any unwanted output
 ob_start();
 
-session_start();
+try {
+    require_once '../config/storage.php';
+    require_once '../config/smtp.php';
+    require_once '../config/security.php';
+} catch (Exception $e) {
+    ob_end_clean();
+    http_response_code(500);
+    echo json_encode(['error' => 'Configuration error']);
+    ob_end_flush();
+    exit;
+}
+
+setSecureSession();
 
 // Set headers before any output
 header('Content-Type: application/json; charset=utf-8');
@@ -22,9 +40,6 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 // Clear any output that might have been generated
 ob_clean();
-
-require_once '../config/storage.php';
-require_once '../config/smtp.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     ob_end_clean();
@@ -40,6 +55,7 @@ if ($method === 'GET' && $action === 'settings') {
         ob_end_clean();
         http_response_code(401);
         echo json_encode(['error' => 'Unauthorized']);
+        ob_end_flush();
         exit;
     }
     
@@ -54,6 +70,7 @@ if ($method === 'GET' && $action === 'settings') {
                 'enabled' => isset($user['two_factor_enabled']) && $user['two_factor_enabled'] === true,
                 'email' => $user['two_factor_email'] ?? $user['email'] ?? ''
             ]);
+            ob_end_flush();
             exit;
         }
     }
@@ -61,6 +78,7 @@ if ($method === 'GET' && $action === 'settings') {
     ob_end_clean();
     http_response_code(404);
     echo json_encode(['error' => 'User not found']);
+    ob_end_flush();
 }
 // POST - Update 2FA settings
 elseif ($method === 'POST' && $action === 'update') {
@@ -68,6 +86,7 @@ elseif ($method === 'POST' && $action === 'update') {
         ob_end_clean();
         http_response_code(401);
         echo json_encode(['error' => 'Unauthorized']);
+        ob_end_flush();
         exit;
     }
     
@@ -97,6 +116,7 @@ elseif ($method === 'POST' && $action === 'update') {
         http_response_code(500);
         echo json_encode(['error' => 'Failed to update settings']);
     }
+    ob_end_flush();
 }
 // POST - Send verification code (during login)
 elseif ($method === 'POST' && $action === 'send-code') {
@@ -106,6 +126,7 @@ elseif ($method === 'POST' && $action === 'send-code') {
         ob_end_clean();
         http_response_code(400);
         echo json_encode(['error' => 'Username required']);
+        ob_end_flush();
         exit;
     }
     
@@ -124,6 +145,7 @@ elseif ($method === 'POST' && $action === 'send-code') {
         ob_end_clean();
         http_response_code(404);
         echo json_encode(['error' => 'User not found']);
+        ob_end_flush();
         exit;
     }
     
@@ -132,6 +154,7 @@ elseif ($method === 'POST' && $action === 'send-code') {
         ob_end_clean();
         http_response_code(400);
         echo json_encode(['error' => '2FA is not enabled for this user']);
+        ob_end_flush();
         exit;
     }
     
@@ -140,6 +163,7 @@ elseif ($method === 'POST' && $action === 'send-code') {
         ob_end_clean();
         http_response_code(400);
         echo json_encode(['error' => 'No pending login found']);
+        ob_end_flush();
         exit;
     }
     
@@ -159,6 +183,7 @@ elseif ($method === 'POST' && $action === 'send-code') {
         ob_end_clean();
         http_response_code(400);
         echo json_encode(['error' => 'No email configured for 2FA']);
+        ob_end_flush();
         exit;
     }
     
@@ -193,6 +218,7 @@ elseif ($method === 'POST' && $action === 'send-code') {
         http_response_code(500);
         echo json_encode(['error' => 'Failed to send verification code']);
     }
+    ob_end_flush();
 }
 // POST - Verify code
 elseif ($method === 'POST' && $action === 'verify') {
@@ -202,6 +228,7 @@ elseif ($method === 'POST' && $action === 'verify') {
         ob_end_clean();
         http_response_code(400);
         echo json_encode(['error' => 'Verification code required']);
+        ob_end_flush();
         exit;
     }
     
@@ -212,6 +239,7 @@ elseif ($method === 'POST' && $action === 'verify') {
         ob_end_clean();
         http_response_code(400);
         echo json_encode(['error' => 'No verification code found. Please request a new code.']);
+        ob_end_flush();
         exit;
     }
     
@@ -221,6 +249,7 @@ elseif ($method === 'POST' && $action === 'verify') {
         ob_end_clean();
         http_response_code(400);
         echo json_encode(['error' => 'Verification code has expired. Please request a new code.']);
+        ob_end_flush();
         exit;
     }
     
@@ -228,6 +257,7 @@ elseif ($method === 'POST' && $action === 'verify') {
         ob_end_clean();
         http_response_code(401);
         echo json_encode(['error' => 'Invalid verification code']);
+        ob_end_flush();
         exit;
     }
     
@@ -257,6 +287,7 @@ elseif ($method === 'POST' && $action === 'verify') {
                     'username' => $user['username']
                 ]
             ]);
+            ob_end_flush();
             exit;
         }
     }
@@ -264,10 +295,12 @@ elseif ($method === 'POST' && $action === 'verify') {
     ob_end_clean();
     http_response_code(500);
     echo json_encode(['error' => 'User not found']);
+    ob_end_flush();
 }
 else {
     ob_end_clean();
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
+    ob_end_flush();
 }
 

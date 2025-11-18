@@ -4,9 +4,34 @@
  * Handles CRUD operations for gallery items (JSON-based, no database)
  */
 
-session_start();
-header('Content-Type: application/json');
-require_once '../config/storage.php';
+// Disable error display and set error handler
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+// Custom error handler to prevent any output
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    error_log("PHP Error [$errno]: $errstr in $errfile on line $errline");
+    return true;
+});
+
+// Start output buffering
+ob_start();
+
+try {
+    require_once '../config/storage.php';
+    require_once '../config/security.php';
+} catch (Exception $e) {
+    ob_end_clean();
+    http_response_code(500);
+    echo json_encode(['error' => 'Configuration error']);
+    exit;
+}
+
+setSecureSession();
+header('Content-Type: application/json; charset=utf-8');
+
+ob_clean();
 
 // CORS headers
 header('Access-Control-Allow-Origin: *');
@@ -14,6 +39,7 @@ header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    ob_end_clean();
     exit(0);
 }
 
@@ -117,14 +143,46 @@ elseif ($method === 'POST' && $action === 'create') {
     
     $items = readJSON('gallery_items.json');
     
+    // Validate and sanitize inputs
+    $category_id = validateId($data['category_id'] ?? 0);
+    if (!$category_id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Valid category ID required']);
+        exit;
+    }
+    
+    $name = sanitizeInput($data['name'] ?? '', 255);
+    if (empty($name)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Name is required']);
+        exit;
+    }
+    
+    // Validate image paths (should be relative paths from uploads/)
+    $before_image = sanitizeInput($data['before_image'] ?? '', 500);
+    $after_image = sanitizeInput($data['after_image'] ?? '', 500);
+    
+    if (empty($before_image) || empty($after_image)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Both before and after images are required']);
+        exit;
+    }
+    
+    // Ensure image paths are safe (only allow uploads/ directory)
+    if (strpos($before_image, 'uploads/') !== 0 || strpos($after_image, 'uploads/') !== 0) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid image path']);
+        exit;
+    }
+    
     $newItem = [
         'id' => getNextId('gallery_items.json'),
-        'category_id' => intval($data['category_id']),
-        'name' => $data['name'],
-        'description' => $data['description'] ?? '',
-        'before_image' => $data['before_image'],
-        'after_image' => $data['after_image'],
-        'comment' => $data['comment'] ?? '',
+        'category_id' => $category_id,
+        'name' => $name,
+        'description' => sanitizeText($data['description'] ?? '', 2000),
+        'before_image' => $before_image,
+        'after_image' => $after_image,
+        'comment' => sanitizeText($data['comment'] ?? '', 1000),
         'created_at' => date('Y-m-d H:i:s'),
         'updated_at' => date('Y-m-d H:i:s')
     ];
@@ -154,14 +212,46 @@ elseif ($method === 'PUT' && $action === 'update') {
     $items = readJSON('gallery_items.json');
     $found = false;
     
+    // Validate and sanitize inputs
+    $category_id = validateId($data['category_id'] ?? 0);
+    if (!$category_id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Valid category ID required']);
+        exit;
+    }
+    
+    $name = sanitizeInput($data['name'] ?? '', 255);
+    if (empty($name)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Name is required']);
+        exit;
+    }
+    
+    // Validate image paths
+    $before_image = sanitizeInput($data['before_image'] ?? '', 500);
+    $after_image = sanitizeInput($data['after_image'] ?? '', 500);
+    
+    if (empty($before_image) || empty($after_image)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Both before and after images are required']);
+        exit;
+    }
+    
+    // Ensure image paths are safe
+    if (strpos($before_image, 'uploads/') !== 0 || strpos($after_image, 'uploads/') !== 0) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid image path']);
+        exit;
+    }
+    
     foreach ($items as &$item) {
         if ($item['id'] == $id) {
-            $item['category_id'] = intval($data['category_id']);
-            $item['name'] = $data['name'];
-            $item['description'] = $data['description'] ?? '';
-            $item['before_image'] = $data['before_image'];
-            $item['after_image'] = $data['after_image'];
-            $item['comment'] = $data['comment'] ?? '';
+            $item['category_id'] = $category_id;
+            $item['name'] = $name;
+            $item['description'] = sanitizeText($data['description'] ?? '', 2000);
+            $item['before_image'] = $before_image;
+            $item['after_image'] = $after_image;
+            $item['comment'] = sanitizeText($data['comment'] ?? '', 1000);
             $item['updated_at'] = date('Y-m-d H:i:s');
             $found = true;
             break;
@@ -201,8 +291,12 @@ elseif ($method === 'DELETE' && $action === 'delete') {
         echo json_encode(['error' => 'Failed to delete item']);
     }
 }
+// If no action matches, return error
 else {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid action or method']);
 }
+
+// Clean output buffer and send response
+ob_end_flush();
 

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+    
+    <!-- Homepage - German (Primary) -->
+    <url>
+        <loc>https://www.durakubeschichtung.de/</loc>
+        <lastmod>2025-01-27</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+        <xhtml:link rel="alternate" hreflang="de" href="https://www.durakubeschichtung.de/"/>
+        <xhtml:link rel="alternate" hreflang="sq" href="https://www.durakubeschichtung.de/?lang=sq"/>
+    </url>
+    
+    <!-- About Page - German -->
+    <url>
+        <loc>https://www.durakubeschichtung.de/about.html</loc>
+        <lastmod>2025-01-27</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="de" href="https://www.durakubeschichtung.de/about.html"/>
+        <xhtml:link rel="alternate" hreflang="sq" href="https://www.durakubeschichtung.de/about.html?lang=sq"/>
+    </url>
+    
+    <!-- Services Page - German -->
+    <url>
+        <loc>https://www.durakubeschichtung.de/services.html</loc>
+        <lastmod>2025-01-27</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" hreflang="de" href="https://www.durakubeschichtung.de/services.html"/>
+        <xhtml:link rel="alternate" hreflang="sq" href="https://www.durakubeschichtung.de/services.html?lang=sq"/>
+    </url>
+    
+    <!-- Gallery Page - German -->
+    <url>
+        <loc>https://www.durakubeschichtung.de/gallery.html</loc>
+        <lastmod>2025-01-27</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" hreflang="de" href="https://www.durakubeschichtung.de/gallery.html"/>
+        <xhtml:link rel="alternate" hreflang="sq" href="https://www.durakubeschichtung.de/gallery.html?lang=sq"/>
+        <!-- Gallery Images -->
+        <image:image>
+            <image:loc>https://www.durakubeschichtung.de/uploads/gallery/hero-page.jpg</image:loc>
+            <image:title>DURAKU XHEVDET Bautenschutz & Industrieböden</image:title>
+            <image:caption>Professionelle Beschichtungen für Industrieböden</image:caption>
+        </image:image>
+    </url>
+    
+    <!-- Contact Page - German -->
+    <url>
+        <loc>https://www.durakubeschichtung.de/contact.html</loc>
+        <lastmod>2025-01-27</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="de" href="https://www.durakubeschichtung.de/contact.html"/>
+        <xhtml:link rel="alternate" hreflang="sq" href="https://www.durakubeschichtung.de/contact.html?lang=sq"/>
+    </url>
+    
+</urlset>
+

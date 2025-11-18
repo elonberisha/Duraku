@@ -16,3 +16,22 @@ Thumbs.db
 *.swp
 *.swo
 
+# Large image files (should be uploaded separately or use Git LFS)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+!favicon/*.png
+!favicon/*.ico
+!favicon/*.jpg
+
+# Vendor directory (Composer)
+vendor/
+
+# Composer lock (will be generated on server)
+composer.lock
+
+# Session files
+data/sessions/
+

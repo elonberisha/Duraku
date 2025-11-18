@@ -101,7 +101,8 @@ const translations = {
         },
         // Footer
         footer: {
-            rights: "Të gjitha të drejtat e rezervuara."
+            rights: "Të gjitha të drejtat e rezervuara.",
+            developed: "Zhvilluar nga"
         }
     },
     de: {
@@ -205,13 +206,14 @@ const translations = {
         },
         // Footer
         footer: {
-            rights: "Alle Rechte vorbehalten."
+            rights: "Alle Rechte vorbehalten.",
+            developed: "Entwickelt von"
         }
     }
 };
 
 // Language management
-let currentLang = localStorage.getItem('language') || 'sq';
+let currentLang = localStorage.getItem('language') || 'de';
 
 function setLanguage(lang) {
     if (!translations[lang]) return;

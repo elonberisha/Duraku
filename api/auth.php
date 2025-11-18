@@ -4,9 +4,34 @@
  * Handles login and session management (JSON-based, no database)
  */
 
-session_start();
-header('Content-Type: application/json');
-require_once '../config/storage.php';
+// Disable error display and set error handler
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+// Custom error handler to prevent any output
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    error_log("PHP Error [$errno]: $errstr in $errfile on line $errline");
+    return true;
+});
+
+// Start output buffering
+ob_start();
+
+try {
+    require_once '../config/storage.php';
+    require_once '../config/security.php';
+} catch (Exception $e) {
+    ob_end_clean();
+    http_response_code(500);
+    echo json_encode(['error' => 'Configuration error']);
+    exit;
+}
+
+setSecureSession();
+header('Content-Type: application/json; charset=utf-8');
+
+ob_clean();
 
 // CORS headers (adjust for production)
 header('Access-Control-Allow-Origin: *');
@@ -14,6 +39,7 @@ header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    ob_end_clean();
     exit(0);
 }
 
@@ -24,13 +50,26 @@ if ($method === 'POST' && $action === 'login') {
     $data = json_decode(file_get_contents('php://input'), true);
     
     if (!isset($data['username']) || !isset($data['password'])) {
+        ob_end_clean();
         http_response_code(400);
         echo json_encode(['error' => 'Username and password required']);
+        ob_end_flush();
         exit;
     }
     
-    $username = trim($data['username']);
+    // Sanitize username
+    $username = sanitizeInput($data['username'], 50);
     $password = $data['password'];
+    
+    // Rate limiting
+    $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    if (!checkRateLimit($username . '_' . $clientIp, 5, 300)) {
+        ob_end_clean();
+        http_response_code(429);
+        echo json_encode(['error' => 'Too many login attempts. Please try again later.']);
+        ob_end_flush();
+        exit;
+    }
     
     $users = readJSON('admin_users.json');
     $user = null;
@@ -43,6 +82,7 @@ if ($method === 'POST' && $action === 'login') {
     }
     
     if ($user && password_verify($password, $user['password_hash'])) {
+        ob_end_clean();
         // Check if 2FA is enabled
         if (isset($user['two_factor_enabled']) && $user['two_factor_enabled'] === true) {
             // Don't log in yet - require 2FA
@@ -71,14 +111,21 @@ if ($method === 'POST' && $action === 'login') {
                 ]
             ]);
         }
+        ob_end_flush();
     } else {
+        ob_end_clean();
         http_response_code(401);
         echo json_encode(['error' => 'Invalid username or password']);
+        ob_end_flush();
     }
 } elseif ($method === 'POST' && $action === 'logout') {
+    ob_end_clean();
     session_destroy();
     echo json_encode(['success' => true, 'message' => 'Logged out successfully']);
+    ob_end_flush();
+    exit;
 } elseif ($method === 'GET' && $action === 'check') {
+    ob_end_clean();
     if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
         echo json_encode([
             'logged_in' => true,
@@ -90,8 +137,12 @@ if ($method === 'POST' && $action === 'login') {
     } else {
         echo json_encode(['logged_in' => false]);
     }
+    ob_end_flush();
+    exit;
 } else {
+    ob_end_clean();
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
+    ob_end_flush();
 }
 

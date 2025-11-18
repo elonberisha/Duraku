@@ -1,0 +1,38 @@
+# Robots.txt for DURAKU XHEVDET
+# Optimized for German market
+
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /about.html
+Allow: /services.html
+Allow: /gallery.html
+Allow: /contact.html
+Allow: /uploads/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /config/
+Disallow: /data/
+Disallow: /vendor/
+
+# Sitemap
+Sitemap: https://www.durakubeschichtung.de/sitemap.xml
+
+# Crawl-delay (optional, helps with server load)
+Crawl-delay: 1
+
+# Specific rules for major search engines
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /config/
+Disallow: /data/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /config/
+Disallow: /data/
+

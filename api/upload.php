@@ -4,7 +4,7 @@
  * Handles image uploads for gallery
  */
 
-session_start();
+setSecureSession();
 header('Content-Type: application/json');
 require_once '../config/storage.php';
 
@@ -58,8 +58,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
-    // Generate unique filename
-    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    // Generate unique filename (sanitize extension)
+    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    // Whitelist allowed extensions
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    if (!in_array($extension, $allowedExtensions)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid file extension. Only images are allowed.']);
+        exit;
+    }
     $filename = uniqid('gallery_', true) . '.' . $extension;
     $filepath = $uploadDir . $filename;
     

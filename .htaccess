@@ -1,49 +1,85 @@
-# Enable Rewrite Engine
-RewriteEngine On
-
-# Allow CORS for API (adjust for production)
-<IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin "*"
-    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
-</IfModule>
-
-# PHP Settings
-<IfModule mod_php7.c>
-    php_value upload_max_filesize 10M
-    php_value post_max_size 10M
-    php_value max_execution_time 300
-    php_value max_input_time 300
-</IfModule>
-
 # Security Headers
 <IfModule mod_headers.c>
-    Header set X-Content-Type-Options "nosniff"
-    Header set X-Frame-Options "SAMEORIGIN"
-    Header set X-XSS-Protection "1; mode=block"
+    # Prevent clickjacking
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # XSS Protection
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Prevent MIME type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # Referrer Policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Content Security Policy (adjust as needed)
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self'; frame-src 'self' https://www.google.com https://maps.googleapis.com;"
 </IfModule>
 
+# Disable directory browsing
+Options -Indexes
+
 # Protect sensitive files
-<FilesMatch "^(database\.sql|\.htaccess|config\.php|change_password\.php)$">
+<FilesMatch "\.(json|log|md|sql)$">
     Order allow,deny
     Deny from all
 </FilesMatch>
 
-# Protect JSON data files
-<FilesMatch "\.json$">
-    <IfModule mod_authz_core.c>
-        Require all denied
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order allow,deny
-        Deny from all
-    </IfModule>
+# Allow access to JSON files in data directory only for PHP
+<FilesMatch "^data/.*\.json$">
+    Order allow,deny
+    Deny from all
 </FilesMatch>
 
-# Prevent directory listing
-Options -Indexes
+# PHP Security Settings
+<IfModule mod_php7.c>
+    php_flag display_errors Off
+    php_flag log_errors On
+</IfModule>
 
-# Custom error pages (optional)
-# ErrorDocument 404 /404.html
-# ErrorDocument 500 /500.html
+# Prevent access to config files
+<FilesMatch "^config/.*\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
 
+# Block access to /admin/ directory unless coming from admin subdomain
+<IfModule mod_rewrite.c>
+    # Block access to /admin/ if NOT from admin subdomain
+    RewriteCond %{HTTP_HOST} !^admin\. [NC]
+    RewriteCond %{REQUEST_URI} ^/admin/ [NC]
+    RewriteRule ^admin/(.*)$ - [F,L]
+    
+    # Also block direct access to admin files
+    RewriteCond %{HTTP_HOST} !^admin\. [NC]
+    RewriteCond %{REQUEST_URI} ^/admin [NC]
+    RewriteRule ^admin.*$ - [F,L]
+</IfModule>
+
+# Force HTTPS (Production only - NOT for localhost)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Only force HTTPS if NOT on localhost
+    RewriteCond %{HTTP_HOST} !^localhost [NC]
+    RewriteCond %{HTTP_HOST} !^127\.0\.0\.1 [NC]
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# Browser Caching
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/html "access plus 1 day"
+</IfModule>
+
+# Gzip Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>

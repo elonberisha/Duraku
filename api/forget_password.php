@@ -12,7 +12,7 @@ ini_set('log_errors', 1);
 // Start output buffering to catch any unwanted output
 ob_start();
 
-session_start();
+setSecureSession();
 
 // Set headers before any output
 header('Content-Type: application/json; charset=utf-8');
@@ -25,6 +25,7 @@ ob_clean();
 
 require_once '../config/storage.php';
 require_once '../config/smtp.php';
+require_once '../config/security.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     ob_end_clean();
