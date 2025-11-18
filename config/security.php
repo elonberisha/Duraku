@@ -80,49 +80,51 @@ function setSecureCORSHeaders() {
  * Set secure session configuration
  */
 function setSecureSession() {
+    // Always configure session settings BEFORE starting session
+    // Set session save path if needed (for better security)
+    $sessionPath = __DIR__ . '/../data/sessions';
+    if (!file_exists($sessionPath)) {
+        @mkdir($sessionPath, 0755, true);
+    }
+    if (is_writable($sessionPath)) {
+        ini_set('session.save_path', $sessionPath);
+    }
+    
+    // Secure session settings
+    ini_set('session.cookie_httponly', 1);
+    // Only use secure cookies in production (HTTPS), not on localhost
+    $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' && 
+                !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1']);
+    ini_set('session.cookie_secure', $isSecure ? 1 : 0);
+    ini_set('session.use_strict_mode', 1);
+    
+    // Set cookie domain for cross-subdomain sharing (only in production)
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    $isLocalhost = in_array($host, ['localhost', '127.0.0.1']) || strpos($host, 'localhost') !== false;
+    
+    // Always set cookie domain for production to allow cross-subdomain sharing
+    if ($isSecure && !$isLocalhost && strpos($host, '.') !== false) {
+        // Extract root domain (e.g., durakubeschichtung.de from admin.durakubeschichtung.de or durakubeschichtung.de)
+        $parts = explode('.', $host);
+        if (count($parts) >= 2) {
+            // Get last two parts (domain.tld)
+            $rootDomain = '.' . implode('.', array_slice($parts, -2));
+            ini_set('session.cookie_domain', $rootDomain);
+        }
+    }
+    
+    // For cross-subdomain, always use None with Secure for production
+    // This allows cookies to be shared between admin.durakubeschichtung.de and durakubeschichtung.de
+    if ($isSecure && !$isLocalhost && strpos($host, '.') !== false) {
+        // Always use None for cross-subdomain cookie sharing in production
+        ini_set('session.cookie_samesite', 'None');
+    } else {
+        // Use Lax for localhost
+        ini_set('session.cookie_samesite', 'Lax');
+    }
+    
+    // Only start session if not already started
     if (session_status() === PHP_SESSION_NONE) {
-        // Set session save path if needed (for better security)
-        $sessionPath = __DIR__ . '/../data/sessions';
-        if (!file_exists($sessionPath)) {
-            @mkdir($sessionPath, 0755, true);
-        }
-        if (is_writable($sessionPath)) {
-            ini_set('session.save_path', $sessionPath);
-        }
-        
-        // Secure session settings
-        ini_set('session.cookie_httponly', 1);
-        // Only use secure cookies in production (HTTPS), not on localhost
-        $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' && 
-                    !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1']);
-        ini_set('session.cookie_secure', $isSecure ? 1 : 0);
-        ini_set('session.use_strict_mode', 1);
-        
-        // Set cookie domain for cross-subdomain sharing (only in production)
-        $host = $_SERVER['HTTP_HOST'] ?? '';
-        $isLocalhost = in_array($host, ['localhost', '127.0.0.1']) || strpos($host, 'localhost') !== false;
-        
-        // Always set cookie domain for production to allow cross-subdomain sharing
-        if ($isSecure && !$isLocalhost && strpos($host, '.') !== false) {
-            // Extract root domain (e.g., durakubeschichtung.de from admin.durakubeschichtung.de or durakubeschichtung.de)
-            $parts = explode('.', $host);
-            if (count($parts) >= 2) {
-                // Get last two parts (domain.tld)
-                $rootDomain = '.' . implode('.', array_slice($parts, -2));
-                ini_set('session.cookie_domain', $rootDomain);
-            }
-        }
-        
-        // For cross-subdomain, always use None with Secure for production
-        // This allows cookies to be shared between admin.durakubeschichtung.de and durakubeschichtung.de
-        if ($isSecure && !$isLocalhost && strpos($host, '.') !== false) {
-            // Always use None for cross-subdomain cookie sharing in production
-            ini_set('session.cookie_samesite', 'None');
-        } else {
-            // Use Lax for localhost
-            ini_set('session.cookie_samesite', 'Lax');
-        }
-        
         session_start();
         
         // Regenerate session ID periodically

@@ -65,8 +65,12 @@ error_log('Upload API - Session ID: ' . session_id());
 error_log('Upload API - Session status: ' . session_status());
 error_log('Upload API - HTTP_HOST: ' . ($_SERVER['HTTP_HOST'] ?? 'not set'));
 error_log('Upload API - HTTP_ORIGIN: ' . ($_SERVER['HTTP_ORIGIN'] ?? 'not set'));
+error_log('Upload API - Cookie domain: ' . ini_get('session.cookie_domain'));
+error_log('Upload API - Cookie samesite: ' . ini_get('session.cookie_samesite'));
+error_log('Upload API - Cookie secure: ' . ini_get('session.cookie_secure'));
 error_log('Upload API - admin_logged_in: ' . (isset($_SESSION['admin_logged_in']) ? ($_SESSION['admin_logged_in'] ? 'true' : 'false') : 'not set'));
 error_log('Upload API - Session keys: ' . (isset($_SESSION) ? implode(', ', array_keys($_SESSION)) : 'no session'));
+error_log('Upload API - All cookies: ' . print_r($_COOKIE, true));
 
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     ob_end_clean();
