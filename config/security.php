@@ -102,8 +102,9 @@ function setSecureSession() {
         $host = $_SERVER['HTTP_HOST'] ?? '';
         $isLocalhost = in_array($host, ['localhost', '127.0.0.1']) || strpos($host, 'localhost') !== false;
         
+        // Always set cookie domain for production to allow cross-subdomain sharing
         if ($isSecure && !$isLocalhost && strpos($host, '.') !== false) {
-            // Extract root domain (e.g., durakubeschichtung.de from admin.durakubeschichtung.de)
+            // Extract root domain (e.g., durakubeschichtung.de from admin.durakubeschichtung.de or durakubeschichtung.de)
             $parts = explode('.', $host);
             if (count($parts) >= 2) {
                 // Get last two parts (domain.tld)
@@ -112,17 +113,11 @@ function setSecureSession() {
             }
         }
         
-        // For cross-subdomain, use None with Secure, otherwise use Lax
+        // For cross-subdomain, always use None with Secure for production
+        // This allows cookies to be shared between admin.durakubeschichtung.de and durakubeschichtung.de
         if ($isSecure && !$isLocalhost && strpos($host, '.') !== false) {
-            // Check if we're on a subdomain
-            $parts = explode('.', $host);
-            if (count($parts) > 2) {
-                // We're on a subdomain, use None for cross-subdomain cookie sharing
-                ini_set('session.cookie_samesite', 'None');
-            } else {
-                // We're on main domain, use Lax
-                ini_set('session.cookie_samesite', 'Lax');
-            }
+            // Always use None for cross-subdomain cookie sharing in production
+            ini_set('session.cookie_samesite', 'None');
         } else {
             // Use Lax for localhost
             ini_set('session.cookie_samesite', 'Lax');

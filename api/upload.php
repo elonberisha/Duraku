@@ -60,10 +60,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 ob_clean();
 
 // Check authentication
+// Debug: Log session info
+error_log('Upload API - Session ID: ' . session_id());
+error_log('Upload API - Session status: ' . session_status());
+error_log('Upload API - HTTP_HOST: ' . ($_SERVER['HTTP_HOST'] ?? 'not set'));
+error_log('Upload API - HTTP_ORIGIN: ' . ($_SERVER['HTTP_ORIGIN'] ?? 'not set'));
+error_log('Upload API - admin_logged_in: ' . (isset($_SESSION['admin_logged_in']) ? ($_SESSION['admin_logged_in'] ? 'true' : 'false') : 'not set'));
+error_log('Upload API - Session keys: ' . (isset($_SESSION) ? implode(', ', array_keys($_SESSION)) : 'no session'));
+
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     ob_end_clean();
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
+    echo json_encode([
+        'error' => 'Unauthorized',
+        'debug' => [
+            'session_id' => session_id(),
+            'session_status' => session_status(),
+            'has_session' => isset($_SESSION),
+            'admin_logged_in' => $_SESSION['admin_logged_in'] ?? 'not set',
+            'session_keys' => isset($_SESSION) ? array_keys($_SESSION) : []
+        ]
+    ]);
     ob_end_flush();
     exit;
 }

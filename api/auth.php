@@ -114,6 +114,14 @@ if ($method === 'POST' && $action === 'login') {
             $_SESSION['admin_username'] = $user['username'];
             $_SESSION['admin_logged_in'] = true;
             
+            // Debug: Log session info after login
+            error_log('Login successful - Session ID: ' . session_id());
+            error_log('Login successful - Cookie domain: ' . ini_get('session.cookie_domain'));
+            error_log('Login successful - Cookie samesite: ' . ini_get('session.cookie_samesite'));
+            error_log('Login successful - Cookie secure: ' . ini_get('session.cookie_secure'));
+            error_log('Login successful - HTTP_HOST: ' . ($_SERVER['HTTP_HOST'] ?? 'not set'));
+            error_log('Login successful - HTTP_ORIGIN: ' . ($_SERVER['HTTP_ORIGIN'] ?? 'not set'));
+            
             echo json_encode([
                 'success' => true,
                 'requires_2fa' => false,
@@ -122,6 +130,14 @@ if ($method === 'POST' && $action === 'login') {
                     'id' => $user['id'],
                     'username' => $user['username'],
                     'email' => $user['email'] ?? ''
+                ],
+                'debug' => [
+                    'session_id' => session_id(),
+                    'cookie_domain' => ini_get('session.cookie_domain'),
+                    'cookie_samesite' => ini_get('session.cookie_samesite'),
+                    'cookie_secure' => ini_get('session.cookie_secure'),
+                    'http_host' => $_SERVER['HTTP_HOST'] ?? 'not set',
+                    'http_origin' => $_SERVER['HTTP_ORIGIN'] ?? 'not set'
                 ]
             ]);
         }
