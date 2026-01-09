@@ -59,5 +59,23 @@
         <xhtml:link rel="alternate" hreflang="sq" href="https://www.durakubeschichtung.de/contact.html?lang=sq"/>
     </url>
     
+    <!-- Impressum Page - German (Legal) -->
+    <url>
+        <loc>https://www.durakubeschichtung.de/impressum.html</loc>
+        <lastmod>2025-01-27</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+        <xhtml:link rel="alternate" hreflang="de" href="https://www.durakubeschichtung.de/impressum.html"/>
+    </url>
+    
+    <!-- Datenschutz Page - German (Legal) -->
+    <url>
+        <loc>https://www.durakubeschichtung.de/datenschutz.html</loc>
+        <lastmod>2025-01-27</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+        <xhtml:link rel="alternate" hreflang="de" href="https://www.durakubeschichtung.de/datenschutz.html"/>
+    </url>
+    
 </urlset>
 

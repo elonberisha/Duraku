@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+    <!-- Google Tag Manager will be loaded only after cookie consent -->
+    <!-- Initialize dataLayer -->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
@@ -125,7 +130,11 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 DURAKU XHEVDET. <span data-i18n="footer.rights">Alle Rechte vorbehalten.</span></p>
+            <p>&copy; <span id="currentYear"></span> DURAKU XHEVDET. <span data-i18n="footer.rights">Alle Rechte vorbehalten.</span></p>
+            <div class="footer-links" style="margin-top: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;">
+                <a href="impressum.html" style="color: #cacaca; text-decoration: none;" data-i18n="footer.impressum">Impressum</a>
+                <a href="datenschutz.html" style="color: #cacaca; text-decoration: none;" data-i18n="footer.privacy">Datenschutzerklärung</a>
+            </div>
             <div style="margin-top: 1rem;">
                 <a href="https://devycore.com" class="devycore-badge" aria-label="Built by Devycore" target="_blank" rel="noopener">
                     <!-- ULTRA PROFESSIONAL SHIELD ICON -->
@@ -193,6 +202,16 @@
     <script src="i18n.js"></script>
     <script src="script.js"></script>
     <script src="about-api.js"></script>
+    <script src="cookie-banner.js"></script>
+    <script>
+        // Update copyright year automatically
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearElement = document.getElementById('currentYear');
+            if (yearElement) {
+                yearElement.textContent = new Date().getFullYear();
+            }
+        });
+    </script>
 </body>
 </html>
 

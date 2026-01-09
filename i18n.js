@@ -102,7 +102,19 @@ const translations = {
         // Footer
         footer: {
             rights: "Të gjitha të drejtat e rezervuara.",
-            developed: "Zhvilluar nga"
+            developed: "Zhvilluar nga",
+            impressum: "Impressum",
+            privacy: "Politika e Privatësisë"
+        },
+        // Cookie Banner
+        cookies: {
+            title: "Cilësimet e Cookies",
+            message: "Ne përdorim cookies për t'ju ofruar përvojën më të mirë në faqen tonë. Disa cookies janë të nevojshme për funksionimin e faqes, ndërsa të tjerët na ndihmojnë të përmirësojmë këtë faqe dhe përvojën e përdoruesit (cookies për gjurmim). Ju mund të vendosni nëse dëshironi të lejoni cookies.",
+            accept: "Prano të gjitha",
+            reject: "Refuzo",
+            settings: "Cilësimet",
+            privacyLink: "Politika e Privatësisë",
+            imprintLink: "Impressum"
         }
     },
     de: {
@@ -207,7 +219,19 @@ const translations = {
         // Footer
         footer: {
             rights: "Alle Rechte vorbehalten.",
-            developed: "Entwickelt von"
+            developed: "Entwickelt von",
+            impressum: "Impressum",
+            privacy: "Datenschutzerklärung"
+        },
+        // Cookie Banner
+        cookies: {
+            title: "Cookie-Einstellungen",
+            message: "Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung auf unserer Website zu bieten. Einige Cookies sind für den Betrieb der Website notwendig, während andere uns helfen, diese Website und die Nutzererfahrung zu verbessern (Tracking-Cookies). Sie können selbst entscheiden, ob Sie die Cookies zulassen möchten.",
+            accept: "Alle akzeptieren",
+            reject: "Ablehnen",
+            settings: "Einstellungen",
+            privacyLink: "Datenschutzerklärung",
+            imprintLink: "Impressum"
         }
     }
 };

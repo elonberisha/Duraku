@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-KVL43RRL');</script>
-    <!-- End Google Tag Manager -->
+    <!-- Google Tag Manager will be loaded only after cookie consent -->
+    <!-- Initialize dataLayer -->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
@@ -294,10 +292,7 @@
                         </div>
                     </div>
 
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KVL43RRL"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
+<!-- Google Tag Manager (noscript) - Will be added after consent -->
 
 
                     <!-- Social Media & Messaging -->
@@ -378,7 +373,11 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 DURAKU XHEVDET. <span data-i18n="footer.rights">Alle Rechte vorbehalten.</span></p>
+            <p>&copy; <span id="currentYear"></span> DURAKU XHEVDET. <span data-i18n="footer.rights">Alle Rechte vorbehalten.</span></p>
+            <div class="footer-links" style="margin-top: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;">
+                <a href="impressum.html" style="color: #cacaca; text-decoration: none;" data-i18n="footer.impressum">Impressum</a>
+                <a href="datenschutz.html" style="color: #cacaca; text-decoration: none;" data-i18n="footer.privacy">Datenschutzerklärung</a>
+            </div>
             <div style="margin-top: 1rem;">
                 <a href="https://devycore.com" class="devycore-badge" aria-label="Built by Devycore" target="_blank" rel="noopener">
                     <!-- ULTRA PROFESSIONAL SHIELD ICON -->
@@ -466,6 +465,16 @@
     <script src="about-api.js"></script>
     <script src="services-api.js"></script>
     <script src="contact-api.js"></script>
+    <script src="cookie-banner.js"></script>
+    <script>
+        // Update copyright year automatically
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearElement = document.getElementById('currentYear');
+            if (yearElement) {
+                yearElement.textContent = new Date().getFullYear();
+            }
+        });
+    </script>
 </body>
 </html>
 
