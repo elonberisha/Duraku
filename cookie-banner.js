@@ -2,12 +2,22 @@
 (function() {
     'use strict';
 
+    // Debug: Log that script is loaded
+    if (typeof console !== 'undefined' && console.log) {
+        console.log('Cookie banner script loaded');
+    }
+
     const COOKIE_CONSENT_KEY = 'cookie_consent';
     const COOKIE_CONSENT_DATE_KEY = 'cookie_consent_date';
     
     // Check if user has already given consent
     function hasConsent() {
-        return localStorage.getItem(COOKIE_CONSENT_KEY) === 'accepted';
+        try {
+            return localStorage.getItem(COOKIE_CONSENT_KEY) === 'accepted';
+        } catch (e) {
+            // localStorage might not be available
+            return false;
+        }
     }
     
     // Get consent date
@@ -17,8 +27,14 @@
     
     // Save consent
     function saveConsent(accepted) {
-        localStorage.setItem(COOKIE_CONSENT_KEY, accepted ? 'accepted' : 'rejected');
-        localStorage.setItem(COOKIE_CONSENT_DATE_KEY, new Date().toISOString());
+        try {
+            localStorage.setItem(COOKIE_CONSENT_KEY, accepted ? 'accepted' : 'rejected');
+            localStorage.setItem(COOKIE_CONSENT_DATE_KEY, new Date().toISOString());
+            return true;
+        } catch (e) {
+            console.error('Failed to save cookie consent:', e);
+            return false;
+        }
     }
     
     // Initialize Google Tag Manager only if consent is given
@@ -237,37 +253,59 @@
     
     // Show cookie banner
     function showCookieBanner() {
-        // Double check consent before showing
-        if (hasConsent()) {
-            return; // Don't show if already consented
+        try {
+            // Double check consent before showing
+            if (hasConsent()) {
+                return; // Don't show if already consented
+            }
+            
+            // Check if banner already exists
+            const existingBanner = document.getElementById('cookieBanner');
+            if (existingBanner) {
+                return; // Banner already exists, don't create another one
+            }
+            
+            // Make sure body exists
+            if (!document.body) {
+                console.warn('Document body not ready, retrying...');
+                setTimeout(showCookieBanner, 100);
+                return;
+            }
+            
+            const banner = createCookieBanner();
+            document.body.appendChild(banner);
+            
+            // Wait a bit for DOM to be ready
+            setTimeout(function() {
+                // Add event listeners
+                const acceptBtn = document.getElementById('cookieAccept');
+                const rejectBtn = document.getElementById('cookieReject');
+                const settingsBtn = document.getElementById('cookieSettings');
+                
+                if (acceptBtn) {
+                    acceptBtn.addEventListener('click', function() {
+                        acceptCookies();
+                    });
+                }
+                
+                if (rejectBtn) {
+                    rejectBtn.addEventListener('click', function() {
+                        rejectCookies();
+                    });
+                }
+                
+                if (settingsBtn) {
+                    settingsBtn.addEventListener('click', function() {
+                        showCookieSettings();
+                    });
+                }
+                
+                // Animate in
+                banner.classList.add('cookie-banner-show');
+            }, 50);
+        } catch (e) {
+            console.error('Error showing cookie banner:', e);
         }
-        
-        // Check if banner already exists
-        const existingBanner = document.getElementById('cookieBanner');
-        if (existingBanner) {
-            return; // Banner already exists, don't create another one
-        }
-        
-        const banner = createCookieBanner();
-        document.body.appendChild(banner);
-        
-        // Add event listeners
-        document.getElementById('cookieAccept').addEventListener('click', function() {
-            acceptCookies();
-        });
-        
-        document.getElementById('cookieReject').addEventListener('click', function() {
-            rejectCookies();
-        });
-        
-        document.getElementById('cookieSettings').addEventListener('click', function() {
-            showCookieSettings();
-        });
-        
-        // Animate in
-        setTimeout(() => {
-            banner.classList.add('cookie-banner-show');
-        }, 100);
     }
     
     // Accept cookies
@@ -354,48 +392,86 @@
         }
     })();
     
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        // First, check if banner already exists (shouldn't happen, but safety check)
-        const existingBanner = document.getElementById('cookieBanner');
-        if (existingBanner) {
-            // Check if consent was given before removing
-            if (hasConsent()) {
-                existingBanner.remove();
-                return;
-            }
-        }
-        
-        // Check if consent was given
-        const consent = hasConsent();
-        
-        if (!consent) {
-            // Only show banner if no consent was given
-            // Double check that banner doesn't exist
-            if (!document.getElementById('cookieBanner')) {
-                showCookieBanner();
-            }
-        } else {
-            // If consent was given, initialize GTM and make sure banner is hidden
-            initGTM();
-            // Remove any existing banner
+    // Initialize cookie banner
+    function initializeCookieBanner() {
+        try {
+            // First, check if banner already exists (shouldn't happen, but safety check)
+            const existingBanner = document.getElementById('cookieBanner');
             if (existingBanner) {
-                existingBanner.remove();
+                // Check if consent was given before removing
+                if (hasConsent()) {
+                    existingBanner.remove();
+                    return;
+                }
+            }
+            
+            // Check if consent was given
+            const consent = hasConsent();
+            
+            if (!consent) {
+                // Only show banner if no consent was given
+                // Double check that banner doesn't exist
+                if (!document.getElementById('cookieBanner')) {
+                    showCookieBanner();
+                }
+            } else {
+                // If consent was given, initialize GTM and make sure banner is hidden
+                initGTM();
+                // Remove any existing banner
+                if (existingBanner) {
+                    existingBanner.remove();
+                }
+            }
+            
+            // Update translations if i18n is available
+            if (typeof updatePageContent === 'function') {
+                updatePageContent();
+            }
+        } catch (e) {
+            console.error('Error initializing cookie banner:', e);
+            // Fallback: try to show banner anyway if there's an error
+            try {
+                if (!document.getElementById('cookieBanner') && !hasConsent()) {
+                    showCookieBanner();
+                }
+            } catch (e2) {
+                console.error('Failed to show cookie banner:', e2);
             }
         }
-        
-        // Update translations if i18n is available
-        if (typeof updatePageContent === 'function') {
-            updatePageContent();
+    }
+    
+    // Initialize on page load - multiple methods for compatibility
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeCookieBanner);
+    } else {
+        // DOM already loaded, run immediately
+        initializeCookieBanner();
+    }
+    
+    // Fallback: also try after a short delay in case DOMContentLoaded didn't fire
+    setTimeout(function() {
+        if (!document.getElementById('cookieBanner') && !hasConsent()) {
+            try {
+                initializeCookieBanner();
+            } catch (e) {
+                console.error('Fallback cookie banner initialization failed:', e);
+            }
         }
-    });
+    }, 1000);
     
     // Export functions for external use
     window.cookieBanner = {
         show: showCookieBanner,
         hide: hideCookieBanner,
         hasConsent: hasConsent,
-        getConsentDate: getConsentDate
+        getConsentDate: getConsentDate,
+        init: initializeCookieBanner
     };
+    
+    // Make sure initialization runs even if DOMContentLoaded already fired
+    // This is a safety net for production environments
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        setTimeout(initializeCookieBanner, 100);
+    }
 })();
 
