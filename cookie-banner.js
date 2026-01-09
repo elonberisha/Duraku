@@ -47,16 +47,9 @@
             'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
             })(window,document,'script','dataLayer','GTM-KVL43RRL');
             
-            // Add noscript iframe for GTM
-            const noscript = document.createElement('noscript');
-            const iframe = document.createElement('iframe');
-            iframe.src = 'https://www.googletagmanager.com/ns.html?id=GTM-KVL43RRL';
-            iframe.height = '0';
-            iframe.width = '0';
-            iframe.style.display = 'none';
-            iframe.style.visibility = 'hidden';
-            noscript.appendChild(iframe);
-            document.body.insertBefore(noscript, document.body.firstChild);
+            // Note: GTM noscript iframe removed to avoid CSP issues
+            // GTM works fine without the noscript iframe - it's only for users with JavaScript disabled
+            // The main GTM script above is sufficient for tracking
         }
     }
     
