@@ -86,8 +86,15 @@
     
     // Show cookie banner
     function showCookieBanner() {
+        // Double check consent before showing
         if (hasConsent()) {
             return; // Don't show if already consented
+        }
+        
+        // Check if banner already exists
+        const existingBanner = document.getElementById('cookieBanner');
+        if (existingBanner) {
+            return; // Banner already exists, don't create another one
         }
         
         const banner = createCookieBanner();
@@ -114,17 +121,31 @@
     
     // Accept cookies
     function acceptCookies() {
+        // Save consent first
         saveConsent(true);
+        
+        // Hide banner immediately
         hideCookieBanner();
+        
+        // Verify consent was saved
+        if (!hasConsent()) {
+            console.error('Failed to save cookie consent');
+            return;
+        }
+        
+        // Initialize GTM
         initGTM();
+        
         // Update translations
         if (typeof updatePageContent === 'function') {
             updatePageContent();
         }
+        
         // Reload to properly initialize GTM in head
+        // Small delay to ensure localStorage is saved
         setTimeout(() => {
             location.reload();
-        }, 300);
+        }, 200);
     }
     
     // Reject cookies
@@ -144,20 +165,72 @@
     function hideCookieBanner() {
         const banner = document.getElementById('cookieBanner');
         if (banner) {
+            // Add hidden class immediately
+            banner.classList.add('hidden');
             banner.classList.remove('cookie-banner-show');
+            // Remove from DOM after animation
             setTimeout(() => {
-                banner.remove();
+                if (banner && banner.parentNode) {
+                    banner.remove();
+                }
             }, 300);
         }
     }
     
+    // Check consent immediately (before DOM loads) to prevent flash
+    (function() {
+        try {
+            const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
+            if (consent === 'accepted' || consent === 'rejected') {
+                // Consent already given, hide banner immediately with CSS
+                const style = document.createElement('style');
+                style.id = 'cookie-banner-hide-style';
+                style.textContent = '#cookieBanner { display: none !important; visibility: hidden !important; opacity: 0 !important; transform: translateY(100%) !important; }';
+                if (document.head) {
+                    document.head.appendChild(style);
+                } else {
+                    // If head not ready, wait for it
+                    document.addEventListener('DOMContentLoaded', function() {
+                        if (!document.getElementById('cookie-banner-hide-style')) {
+                            document.head.appendChild(style);
+                        }
+                    });
+                }
+            }
+        } catch (e) {
+            // localStorage might not be available, continue normally
+            console.warn('localStorage not available:', e);
+        }
+    })();
+    
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
+        // First, check if banner already exists (shouldn't happen, but safety check)
+        const existingBanner = document.getElementById('cookieBanner');
+        if (existingBanner) {
+            // Check if consent was given before removing
+            if (hasConsent()) {
+                existingBanner.remove();
+                return;
+            }
+        }
+        
         // Check if consent was given
-        if (!hasConsent()) {
-            showCookieBanner();
+        const consent = hasConsent();
+        
+        if (!consent) {
+            // Only show banner if no consent was given
+            // Double check that banner doesn't exist
+            if (!document.getElementById('cookieBanner')) {
+                showCookieBanner();
+            }
         } else {
+            // If consent was given, initialize GTM and make sure banner is hidden
             initGTM();
+            // Remove any existing banner
+            if (existingBanner) {
+                existingBanner.remove();
+            }
         }
         
         // Update translations if i18n is available
