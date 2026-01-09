@@ -44,8 +44,159 @@
         }
     }
     
+    // Add inline styles for cookie banner (fallback if CSS not loaded)
+    function addCookieBannerStyles() {
+        // Check if styles already added
+        if (document.getElementById('cookie-banner-inline-styles')) {
+            return;
+        }
+        
+        const style = document.createElement('style');
+        style.id = 'cookie-banner-inline-styles';
+        style.textContent = `
+            .cookie-banner {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                background: #2d2d2d !important;
+                border-top: 3px solid #f97316 !important;
+                padding: 1.5rem !important;
+                z-index: 10000 !important;
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5) !important;
+                transform: translateY(100%) !important;
+                transition: transform 0.3s ease-in-out !important;
+                max-width: 100% !important;
+                display: block !important;
+            }
+            .cookie-banner.hidden {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                transform: translateY(100%) !important;
+            }
+            .cookie-banner-show {
+                transform: translateY(0) !important;
+            }
+            .cookie-banner-content {
+                max-width: 1200px !important;
+                margin: 0 auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 1.5rem !important;
+                align-items: flex-start !important;
+            }
+            .cookie-banner-text {
+                flex: 1 !important;
+                color: #e5e5e5 !important;
+            }
+            .cookie-banner-text h3 {
+                color: #f97316 !important;
+                font-size: 1.3rem !important;
+                margin-bottom: 0.75rem !important;
+                font-weight: 600 !important;
+            }
+            .cookie-banner-text p {
+                margin-bottom: 0.5rem !important;
+                line-height: 1.6 !important;
+                font-size: 0.95rem !important;
+            }
+            .cookie-banner-links {
+                margin-top: 0.75rem !important;
+            }
+            .cookie-banner-links a {
+                color: #f97316 !important;
+                text-decoration: none !important;
+                transition: color 0.3s ease !important;
+            }
+            .cookie-banner-links a:hover {
+                color: #fb923c !important;
+                text-decoration: underline !important;
+            }
+            .cookie-banner-buttons {
+                display: flex !important;
+                gap: 1rem !important;
+                flex-wrap: wrap !important;
+                width: 100% !important;
+            }
+            .cookie-btn {
+                padding: 0.75rem 1.5rem !important;
+                border: none !important;
+                border-radius: 8px !important;
+                font-size: 1rem !important;
+                font-weight: 600 !important;
+                cursor: pointer !important;
+                transition: all 0.3s ease !important;
+                font-family: 'Poppins', 'Inter', sans-serif !important;
+                flex: 1 !important;
+                min-width: 140px !important;
+            }
+            .cookie-btn-accept {
+                background: #f97316 !important;
+                color: #ffffff !important;
+            }
+            .cookie-btn-accept:hover {
+                background: #fb923c !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4) !important;
+            }
+            .cookie-btn-reject {
+                background: transparent !important;
+                color: #e5e5e5 !important;
+                border: 2px solid #a0a0a0 !important;
+            }
+            .cookie-btn-reject:hover {
+                background: #3a3a3a !important;
+                border-color: #e5e5e5 !important;
+                color: #ffffff !important;
+            }
+            .cookie-btn-settings {
+                background: #3a3a3a !important;
+                color: #e5e5e5 !important;
+                border: 2px solid #a0a0a0 !important;
+            }
+            .cookie-btn-settings:hover {
+                background: #2d2d2d !important;
+                border-color: #f97316 !important;
+                color: #f97316 !important;
+            }
+            @media (min-width: 768px) {
+                .cookie-banner-content {
+                    flex-direction: row !important;
+                    align-items: center !important;
+                }
+                .cookie-banner-buttons {
+                    flex: 0 0 auto !important;
+                    width: auto !important;
+                }
+                .cookie-btn {
+                    flex: 0 0 auto !important;
+                }
+            }
+            @media (max-width: 767px) {
+                .cookie-banner {
+                    padding: 1rem !important;
+                }
+                .cookie-banner-text h3 {
+                    font-size: 1.1rem !important;
+                }
+                .cookie-banner-text p {
+                    font-size: 0.9rem !important;
+                }
+                .cookie-btn {
+                    width: 100% !important;
+                    min-width: 100% !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
     // Create cookie banner HTML
     function createCookieBanner() {
+        // Add inline styles first (fallback)
+        addCookieBannerStyles();
+        
         const banner = document.createElement('div');
         banner.id = 'cookieBanner';
         banner.className = 'cookie-banner';
